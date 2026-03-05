@@ -19,7 +19,7 @@
       },
     ],
     "paths": {
-      // "#ui": ["./components/ui/index.ts"],
+      "#ui": ["./shared/components/ui/index.ts"],
       "#feat/*": ["./features/*"],
       "#ent/*": ["./entities/*"],
       "#server/*": ["./server/*"],
