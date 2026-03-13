@@ -1,6 +1,5 @@
 import { FlickeringGrid, Heading, Text } from "#ui";
 import { HomeCardBlock } from "@/components/home";
-import { ModeToggle } from "@/components/mode-toggle";
 
 export default function Home() {
   return (
@@ -16,7 +15,6 @@ export default function Home() {
 
       <div className="relative z-10 flex h-screen w-full flex-col items-center justify-center space-y-5">
         <Heading>Developer Environment</Heading>
-        <ModeToggle />
         <Text>
           Управляй проектами, фиксируй задачи и храни знания в одном месте.
         </Text>
