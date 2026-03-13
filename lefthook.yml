@@ -1,0 +1,17 @@
+pre-commit:
+  parallel: true
+  commands:
+    format:
+      name: "Formatting files"
+      glob: "*.{js,ts,jsx,tsx}"
+      run: npm run format {staged_files}
+      stage_fixed: true
+    lint:
+      name: "Lint files"
+      glob: "*.{js,ts,jsx,tsx}"
+      run: npm run lint {staged_files}
+      stage_fixed: true
+    typecheck:
+      name: "Type checking files"
+      glob: "*.{ts,tsx}"
+      run: npm run typecheck
