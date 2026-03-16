@@ -40,3 +40,14 @@ export {
   navigationMenuTriggerStyle,
 } from "./navigation-menu";
 export { Separator } from "./separator";
+export { PageHero } from "./page-hero";
+export { Input } from "./input";
+export {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+  InputGroupText,
+  InputGroupTextarea,
+} from "./input-group";
+export { Textarea } from "./textarea";
