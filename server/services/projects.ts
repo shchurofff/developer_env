@@ -2,7 +2,7 @@ import { prisma } from "#server/db/prisma";
 import { Project } from "@/generated/prisma/client";
 
 export const getProjects = async () => {
-  return await prisma.project.findMany({
+  const projects = await prisma.project.findMany({
     include: {
       _count: {
         select: { tasks: true },
@@ -12,7 +12,13 @@ export const getProjects = async () => {
       startDay: "desc",
     },
   });
+  return projects.map(({ _count, ...project }) => ({
+    ...project,
+    tasksCount: _count.tasks,
+  }));
 };
+
+export type ProjectWithTaskCount = Awaited<ReturnType<typeof getProjects>>[0];
 
 export const getProjectById = async (id: Project["id"]) => {
   const project = await prisma.project.findUnique({
