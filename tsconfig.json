@@ -20,6 +20,7 @@
     ],
     "paths": {
       "#ui": ["./components/ui/index.ts"],
+      "#mod/*": ["./modules/*"],
       "#server/*": ["./server/*"],
       "#store/*": ["./store/*"],
       "@/*": ["./*"],

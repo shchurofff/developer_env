@@ -1,4 +1,4 @@
-import { Header } from "@/components/header";
+import { Header } from "#mod/header";
 import { PropsWithChildren } from "react";
 
 export default async function DashboardLayout({ children }: PropsWithChildren) {

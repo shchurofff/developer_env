@@ -1,15 +1,19 @@
 import { Button, InputGroup, InputGroupAddon, InputGroupInput } from "#ui";
-import { Search } from "lucide-react";
+import { Plus, Search } from "lucide-react";
 import { Dispatch, FC, SetStateAction } from "react";
 
 interface ProjectsFiltersProps {
   searchValue: string;
   setSeachValue: Dispatch<SetStateAction<string>>;
+  showModal: boolean;
+  setShowModal: Dispatch<SetStateAction<boolean>>;
 }
 
 export const ProjectsFilters: FC<ProjectsFiltersProps> = ({
   searchValue,
   setSeachValue,
+  setShowModal,
+  showModal,
 }) => {
   return (
     <div className="flex w-full gap-4">
@@ -24,7 +28,9 @@ export const ProjectsFilters: FC<ProjectsFiltersProps> = ({
         </InputGroupAddon>
       </InputGroup>
 
-      <Button>+ Добавить проект</Button>
+      <Button onClick={() => setShowModal(!showModal)}>
+        <Plus /> Добавить проект
+      </Button>
     </div>
   );
 };

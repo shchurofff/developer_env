@@ -1,6 +1,6 @@
+import { ProjectsView } from "#mod/projects";
 import { getProjects } from "#server/services";
 import { PageHero } from "#ui";
-import { ProjectsView } from "@/components/projects";
 
 export default async function ProjectsPage() {
   const data = await getProjects();
