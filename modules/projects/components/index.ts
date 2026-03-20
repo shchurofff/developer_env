@@ -4,3 +4,4 @@ export { ProjectsFilters } from "./projects-filters";
 export { ProjectCard } from "./project-card";
 export { ProjectCreateModal } from "./project-create-modal";
 export { ProjectAvatar } from "./project-avatar";
+export { ProjectStack } from "./project-stack";
