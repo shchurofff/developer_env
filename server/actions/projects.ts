@@ -3,6 +3,7 @@
 import { prisma } from "#server/db/prisma";
 import { Project } from "@/generated/prisma/client";
 import { revalidatePath } from "next/cache";
+import slugify from "slugify";
 
 type ActionResult = { success: true } | { success: false; error: string };
 
@@ -10,10 +11,12 @@ export async function createProject(
   data: Pick<Project, "name" | "description">
 ) {
   try {
+    const slug = slugify(data.name, { lower: true, strict: true });
     const project = await prisma.project.create({
       data: {
         name: data.name,
         description: data.description,
+        slug: slug,
         status: "WORKING_NOW",
       },
     });

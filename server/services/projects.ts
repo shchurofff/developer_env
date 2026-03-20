@@ -22,11 +22,12 @@ export const getProjects = async () => {
 
 export type ProjectWithTaskCount = Awaited<ReturnType<typeof getProjects>>[0];
 
-export const getProjectById = async (id: Project["id"]) => {
+export const getProjectBySlug = async (slug: Project["slug"]) => {
   const project = await prisma.project.findUnique({
-    where: { id },
+    where: { slug },
     include: {
       tasks: true,
+      stack: true,
     },
   });
 

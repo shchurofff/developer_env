@@ -13,6 +13,7 @@ const prisma = new PrismaClient({
 const projectsData: Prisma.ProjectCreateInput[] = [
   {
     name: "FireFlow",
+    slug: "fireflow",
     description:
       "Площадка для менеджмента сотрудников. Включает дашборды и систему контроля доступов.",
     status: "WORKED",
@@ -63,6 +64,7 @@ const projectsData: Prisma.ProjectCreateInput[] = [
   },
   {
     name: "Developer Environment",
+    slug: "developenv",
     description:
       "Площадка которая старается создать среду для облегчения и улучшения рутинных задач разработчика (Пет-проект)",
     status: "WORKING_NOW",

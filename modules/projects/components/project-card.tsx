@@ -112,7 +112,7 @@ export const ProjectCard: FC<ProjectCardProps> = ({
           </AlertDialog>
 
           <Button variant={"ghost"} asChild>
-            <Link href={`./projects/${project.id}`}>
+            <Link href={`./projects/${project.slug}`}>
               <MoveRight />
             </Link>
           </Button>
