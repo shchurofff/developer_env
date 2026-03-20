@@ -1,4 +1,4 @@
-import { ProjectsView } from "#mod/projects";
+import { ProjectsView } from "#mod/projects/components";
 import { getProjects } from "#server/services";
 import { PageHero } from "#ui";
 

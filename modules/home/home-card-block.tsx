@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { Briefcase, GraduationCap, Icon, Loader } from "lucide-react";
+import { Briefcase, GraduationCap, Loader } from "lucide-react";
 import { FC } from "react";
 import { HomeCard, HomeCardProps } from "./home-card";
 
