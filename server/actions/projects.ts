@@ -4,8 +4,10 @@ import { prisma } from "#server/db/prisma";
 import { Project } from "@/generated/prisma/client";
 import { revalidatePath } from "next/cache";
 
+type ActionResult = { success: true } | { success: false; error: string };
+
 export async function createProject(
-  data: Pick<Project, "name" | "description">,
+  data: Pick<Project, "name" | "description">
 ) {
   try {
     const project = await prisma.project.create({
@@ -25,7 +27,7 @@ export async function createProject(
 
 export async function updateProject(
   id: string,
-  data: Partial<Pick<Project, "name" | "description" | "status" | "endDay">>,
+  data: Partial<Pick<Project, "name" | "description" | "status" | "endDay">>
 ) {
   try {
     await prisma.project.update({
@@ -41,7 +43,7 @@ export async function updateProject(
   }
 }
 
-export async function deleteProject(id: string) {
+export async function deleteProject(id: string): Promise<ActionResult> {
   try {
     await prisma.project.delete({
       where: { id },
@@ -50,6 +52,10 @@ export async function deleteProject(id: string) {
     revalidatePath("/");
     return { success: true };
   } catch (error) {
-    return { error: "Не удалось удалить проект" };
+    console.error("Delete Project Error:", error);
+    return {
+      success: false,
+      error: "Не удалось удалить проект",
+    };
   }
 }

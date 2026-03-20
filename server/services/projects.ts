@@ -7,13 +7,15 @@ export const getProjects = async () => {
       _count: {
         select: { tasks: true },
       },
+      stack: true,
     },
     orderBy: {
       startDay: "desc",
     },
   });
-  return projects.map(({ _count, ...project }) => ({
+  return projects.map(({ _count, stack, ...project }) => ({
     ...project,
+    stack,
     tasksCount: _count.tasks,
   }));
 };
