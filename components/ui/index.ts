@@ -132,3 +132,9 @@ export {
 export { Skeleton } from "./skeleton";
 export { Toaster } from "./sonner";
 export { Spinner } from "./spinner";
+export {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "./tooltip";
