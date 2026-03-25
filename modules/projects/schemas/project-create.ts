@@ -9,6 +9,7 @@ export const projectSchema = z.object({
     .string()
     .min(20, "Описание должно быть более информативным")
     .max(100, "Описание не должно превышать 100 символов"),
+  stack: z.array(z.string()).min(1, "Выберите хотя бы одну технологию"),
 });
 
 export type ProjectFormValues = z.infer<typeof projectSchema>;

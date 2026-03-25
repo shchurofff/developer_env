@@ -1,4 +1,4 @@
-import { ProjectWithTaskCount } from "#server/services";
+import { ProjectWithTaskCount } from "#server/services/projects/index";
 import { FC } from "react";
 import { TECH_ICONS } from "../utils";
 import { Tooltip, TooltipContent, TooltipTrigger } from "#ui";

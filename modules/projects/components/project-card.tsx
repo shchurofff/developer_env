@@ -1,6 +1,6 @@
 "use client";
 
-import { ProjectWithTaskCount } from "#server/services";
+import { ProjectWithTaskCount } from "#server/services/projects/index";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,7 +18,6 @@ import {
   CardAction,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
   Heading,
@@ -126,9 +125,6 @@ export const ProjectCard: FC<ProjectCardProps> = ({
           <StatusIcon /> {projectStatus.label}
         </Badge>
       </CardContent>
-      {/*<CardFooter>
-        <ProjectStack stack={project.stack} />
-      </CardFooter>*/}
     </Card>
   );
 };

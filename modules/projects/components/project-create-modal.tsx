@@ -13,32 +13,44 @@ import {
   FieldError,
   FieldGroup,
   FieldLabel,
-  Input,
   InputGroup,
   InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
   InputGroupText,
   InputGroupTextarea,
+  MultiSelect,
+  MultiSelectContent,
+  MultiSelectGroup,
+  MultiSelectItem,
+  MultiSelectTrigger,
+  MultiSelectValue,
 } from "#ui";
 import { FC } from "react";
 import { ProjectFormValues, projectSchema } from "#mod/projects/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import { createProject } from "#server/actions";
+import { Technology } from "@/generated/prisma/browser";
+import { XIcon } from "lucide-react";
 
 interface ProjectCreateModalProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
+  stack: Technology[];
 }
 
 export const ProjectCreateModal: FC<ProjectCreateModalProps> = ({
   isOpen,
   onOpenChange,
+  stack,
 }) => {
   const form = useForm<ProjectFormValues>({
     resolver: zodResolver(projectSchema),
     defaultValues: {
       name: "",
       description: "",
+      stack: [],
     },
   });
 
@@ -57,7 +69,10 @@ export const ProjectCreateModal: FC<ProjectCreateModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent showCloseButton={false} className="max-h-[80vh] min-w-2xl">
+      <DialogContent
+        showCloseButton={false}
+        className="max-h-[80vh] min-w-2xl overflow-y-auto"
+      >
         <DialogHeader>
           <DialogTitle>Добавление проекта</DialogTitle>
           <DialogDescription>
@@ -79,13 +94,63 @@ export const ProjectCreateModal: FC<ProjectCreateModalProps> = ({
                   <FieldLabel htmlFor="project-title">
                     Название проекта
                   </FieldLabel>
-                  <Input
-                    {...field}
-                    id="project-title"
-                    aria-invalid={fieldState.invalid}
-                    placeholder="Введите название проекта"
-                    autoComplete="off"
-                  />
+                  <InputGroup>
+                    <InputGroupInput
+                      {...field}
+                      id="project-title"
+                      aria-invalid={fieldState.invalid}
+                      placeholder="Введите название проекта"
+                      autoComplete="off"
+                    />
+                    {field.value.length > 0 && (
+                      <InputGroupAddon align="inline-end">
+                        <InputGroupButton
+                          aria-label="Delete"
+                          title="Delete"
+                          size="icon-xs"
+                          onClick={() => field.onChange("")}
+                        >
+                          <XIcon />
+                        </InputGroupButton>
+                      </InputGroupAddon>
+                    )}
+                  </InputGroup>
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+
+            <Controller
+              control={form.control}
+              name="stack"
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="project-stack">
+                    Стек технологий
+                  </FieldLabel>
+                  <MultiSelect
+                    values={field.value}
+                    onValuesChange={field.onChange}
+                  >
+                    <MultiSelectTrigger>
+                      <MultiSelectValue
+                        overflowBehavior="cutoff"
+                        placeholder="Выберите технологии"
+                      />
+                    </MultiSelectTrigger>
+                    <MultiSelectContent>
+                      <MultiSelectGroup>
+                        {stack.map((tech) => (
+                          <MultiSelectItem key={tech.id} value={tech.id}>
+                            {tech.name}
+                          </MultiSelectItem>
+                        ))}
+                      </MultiSelectGroup>
+                    </MultiSelectContent>
+                  </MultiSelect>
+
                   {fieldState.invalid && (
                     <FieldError errors={[fieldState.error]} />
                   )}

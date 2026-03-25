@@ -10,6 +10,23 @@ const prisma = new PrismaClient({
   adapter,
 });
 
+const ALL_TECHNOLOGIES = [
+  { name: "React", icon: "react" },
+  { name: "TypeScript", icon: "typescript" },
+  { name: "Next.js", icon: "nextjs" },
+  { name: "Tailwind", icon: "tailwind" },
+  { name: "Prisma", icon: "prisma" },
+  { name: "Node.js", icon: "nodejs" },
+  { name: "PostgreSQL", icon: "postgresql" },
+  { name: "Docker", icon: "docker" },
+  { name: "Zustand", icon: "zustand" },
+  { name: "Shadcn UI", icon: "shadcn" },
+  { name: "Chakra UI", icon: "chakraui" },
+  { name: "Vue", icon: "vue" },
+  { name: "Chart.js", icon: "chartdotjs" },
+  { name: "TanStack", icon: "tanstack" },
+];
+
 const projectsData: Prisma.ProjectCreateInput[] = [
   {
     name: "FireFlow",
@@ -123,6 +140,15 @@ const projectsData: Prisma.ProjectCreateInput[] = [
 export async function main() {
   await prisma.project.deleteMany();
   await prisma.technology.deleteMany();
+
+  for (const tech of ALL_TECHNOLOGIES) {
+    await prisma.technology.upsert({
+      where: { name: tech.name },
+      update: {},
+      create: tech,
+    });
+  }
+
   for (const p of projectsData) {
     await prisma.project.create({ data: p });
   }
