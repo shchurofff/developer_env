@@ -1,5 +1,5 @@
+import { HomeCardBlock } from "#mod/home";
 import { FlickeringGrid, Heading, Text } from "#ui";
-import { HomeCardBlock } from "@/components/home";
 
 export default function Home() {
   return (

@@ -1,5 +1,5 @@
 import { Separator } from "#ui";
-import { ModeToggle } from "../mode-toggle";
+import { ModeToggle } from "../../components/mode-toggle";
 import { HeaderLogo } from "./header-logo";
 import { HeaderNavigation } from "./header-navigation";
 

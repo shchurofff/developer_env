@@ -2,23 +2,32 @@ import { prisma } from "#server/db/prisma";
 import { Project } from "@/generated/prisma/client";
 
 export const getProjects = async () => {
-  return await prisma.project.findMany({
+  const projects = await prisma.project.findMany({
     include: {
       _count: {
         select: { tasks: true },
       },
+      stack: true,
     },
     orderBy: {
       startDay: "desc",
     },
   });
+  return projects.map(({ _count, stack, ...project }) => ({
+    ...project,
+    stack,
+    tasksCount: _count.tasks,
+  }));
 };
 
-export const getProjectById = async (id: Project["id"]) => {
+export type ProjectWithTaskCount = Awaited<ReturnType<typeof getProjects>>[0];
+
+export const getProjectBySlug = async (slug: Project["slug"]) => {
   const project = await prisma.project.findUnique({
-    where: { id },
+    where: { slug },
     include: {
       tasks: true,
+      stack: true,
     },
   });
 
