@@ -1,5 +1,6 @@
 "use server";
 
+import { ProjectFormValues } from "#mod/projects/schemas";
 import { prisma } from "#server/db/prisma";
 import { Project } from "@/generated/prisma/client";
 import { revalidatePath } from "next/cache";
@@ -7,9 +8,7 @@ import slugify from "slugify";
 
 type ActionResult = { success: true } | { success: false; error: string };
 
-export async function createProject(
-  data: Pick<Project, "name" | "description">
-) {
+export async function createProject(data: ProjectFormValues) {
   try {
     const slug = slugify(data.name, { lower: true, strict: true });
     const project = await prisma.project.create({
@@ -18,13 +17,16 @@ export async function createProject(
         description: data.description,
         slug: slug,
         status: "WORKING_NOW",
+        stack: {
+          connect: data.stack.map((id) => ({ id })),
+        },
       },
     });
     revalidatePath("/");
     return { success: true, project };
   } catch (error) {
     console.error("Create Project Error:", error);
-    return { error: "Не удалось создать проект" };
+    return { success: false, error: "Не удалось создать проект" };
   }
 }
 
