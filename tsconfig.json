@@ -19,11 +19,9 @@
       },
     ],
     "paths": {
-      "#ui": ["./shared/components/ui/index.ts"],
-      "#feat/*": ["./features/*"],
-      "#ent/*": ["./entities/*"],
+      "#ui": ["./components/ui/index.ts"],
+      "#mod/*": ["./modules/*"],
       "#server/*": ["./server/*"],
-      "#shared/*": ["./shared/*"],
       "#store/*": ["./store/*"],
       "@/*": ["./*"],
     },
