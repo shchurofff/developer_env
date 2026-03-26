@@ -1,7 +1,7 @@
 "use server";
 
 import { ProjectFormValues } from "#mod/projects/schemas";
-import { prisma } from "#server/db/prisma";
+import { prisma } from "#server/db/db";
 import { Project } from "@/generated/prisma/client";
 import { revalidatePath } from "next/cache";
 import slugify from "slugify";

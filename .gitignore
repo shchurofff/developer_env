@@ -45,3 +45,5 @@ generated/prisma
 # Prisma
 dev.db
 prisma/migrations/*.sql
+
+/generated/prisma
