@@ -1,4 +1,4 @@
-import { prisma } from "#server/db/prisma";
+import { prisma } from "#server/db/db";
 import { Project } from "@/generated/prisma/client";
 
 export const getProjects = async () => {
