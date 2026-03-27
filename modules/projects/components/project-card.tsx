@@ -32,16 +32,11 @@ import { cn } from "@/lib/utils";
 import { ProjectStack } from "./project-stack";
 
 interface ProjectCardProps {
-  favicon?: string;
   project: ProjectWithTaskCount;
   onDelete: (id: string) => Promise<void>;
 }
 
-export const ProjectCard: FC<ProjectCardProps> = ({
-  favicon,
-  project,
-  onDelete,
-}) => {
+export const ProjectCard: FC<ProjectCardProps> = ({ project, onDelete }) => {
   const [isPending, startTransition] = useTransition();
 
   const projectStatus = STATUS_CONFIG[project.status] || {
@@ -65,7 +60,10 @@ export const ProjectCard: FC<ProjectCardProps> = ({
     >
       <CardHeader>
         <CardTitle className="flex items-center gap-4 pb-2">
-          <ProjectAvatar name={project.name} image={favicon} />
+          <ProjectAvatar
+            name={project.name}
+            image={project.favicon || undefined}
+          />
           <Heading className="flex-1" level={"h3"}>
             {project.name}
           </Heading>

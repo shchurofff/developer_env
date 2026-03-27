@@ -10,6 +10,15 @@ export const projectSchema = z.object({
     .min(20, "Описание должно быть более информативным")
     .max(100, "Описание не должно превышать 100 символов"),
   stack: z.array(z.string()).min(1, "Выберите хотя бы одну технологию"),
+  favicon: z
+    .instanceof(File)
+    .refine((file) => file.size <= 5 * 1024 * 1024, "Максимальный размер 5МБ")
+    .refine(
+      (file) => ["image/png", "image/jpeg", "image/webp"].includes(file.type),
+      "Только файлы формата JPG, PNG или WebP"
+    )
+    .nullable()
+    .optional(),
 });
 
 export type ProjectFormValues = z.infer<typeof projectSchema>;

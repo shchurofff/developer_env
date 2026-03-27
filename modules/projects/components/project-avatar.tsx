@@ -11,8 +11,8 @@ export const ProjectAvatar: FC<ProjectAvatarProps> = ({ image, name }) => {
   return (
     <>
       {image ? (
-        <Avatar>
-          <AvatarImage src={image} alt={name} className="grayscale" />
+        <Avatar size="lg">
+          <AvatarImage src={image} alt={name} />
           <AvatarFallback>{name}</AvatarFallback>
         </Avatar>
       ) : (

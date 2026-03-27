@@ -25,14 +25,17 @@ import {
   MultiSelectItem,
   MultiSelectTrigger,
   MultiSelectValue,
+  Text,
 } from "#ui";
-import { FC } from "react";
+import { ChangeEvent, FC, useEffect, useRef, useState } from "react";
 import { ProjectFormValues, projectSchema } from "#mod/projects/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, ControllerRenderProps, useForm } from "react-hook-form";
 import { createProject } from "#server/actions";
 import { Technology } from "@/generated/prisma/browser";
 import { XIcon } from "lucide-react";
+import Image from "next/image";
+import { toast } from "sonner";
 
 interface ProjectCreateModalProps {
   isOpen: boolean;
@@ -45,26 +48,56 @@ export const ProjectCreateModal: FC<ProjectCreateModalProps> = ({
   onOpenChange,
   stack,
 }) => {
+  const [preview, setPreview] = useState<string | null>(null);
+  const upload = useRef<HTMLInputElement | null>(null);
+
+  const onUploadFavicon = (
+    event: ChangeEvent<HTMLInputElement>,
+    field: ControllerRenderProps<ProjectFormValues>
+  ) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      field.onChange(file);
+      setPreview(URL.createObjectURL(file));
+    }
+  };
+
+  const deleteUploadFavicon = (
+    field: ControllerRenderProps<ProjectFormValues>
+  ) => {
+    setPreview(null);
+    field.onChange(undefined);
+    if (upload.current) upload.current.value = "";
+  };
+
   const form = useForm<ProjectFormValues>({
     resolver: zodResolver(projectSchema),
     defaultValues: {
       name: "",
       description: "",
       stack: [],
+      favicon: undefined,
     },
   });
 
   const onFormSubmit = async (data: ProjectFormValues) => {
-    const result = await createProject(data);
+    const formData = new FormData();
+    formData.append("name", data.name);
+    formData.append("description", data.description);
+    data.stack.forEach((id) => formData.append("stack", id));
+    if (data.favicon) formData.append("favicon", data.favicon);
+    const result = await createProject(formData);
 
-    if (result.error) {
-      alert(result.error);
+    if (!result.success) {
+      toast.error(result.error as string);
       return;
     }
+    toast.success("Проект успешно добавлен");
 
     console.log("Create Project with data:", data);
     onOpenChange(false);
     form.reset();
+    setPreview(null);
   };
 
   return (
@@ -86,41 +119,120 @@ export const ProjectCreateModal: FC<ProjectCreateModalProps> = ({
           onSubmit={form.handleSubmit(onFormSubmit)}
         >
           <FieldGroup>
-            <Controller
-              control={form.control}
-              name="name"
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="project-title">
-                    Название проекта
-                  </FieldLabel>
-                  <InputGroup>
-                    <InputGroupInput
-                      {...field}
-                      id="project-title"
-                      aria-invalid={fieldState.invalid}
-                      placeholder="Введите название проекта"
-                      autoComplete="off"
+            <div className="flex gap-2">
+              <Controller
+                control={form.control}
+                name="favicon"
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor="project-title">
+                      Иконка проекта
+                    </FieldLabel>
+
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(event) => onUploadFavicon(event, field)}
+                      ref={upload}
+                      className="hidden"
                     />
-                    {field.value.length > 0 && (
-                      <InputGroupAddon align="inline-end">
-                        <InputGroupButton
-                          aria-label="Delete"
-                          title="Delete"
-                          size="icon-xs"
-                          onClick={() => field.onChange("")}
+
+                    <div className="flex items-center gap-6">
+                      <div
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => upload.current?.click()}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ")
+                            upload.current?.click();
+                        }}
+                        className="bg-muted hover:bg-muted/80 focus-visible:ring-ring relative flex size-16 shrink-0 cursor-pointer items-center justify-center overflow-hidden border border-dashed transition-colors focus-visible:ring-2 focus-visible:outline-none"
+                        title="Нажмите, чтобы выбрать файл"
+                      >
+                        {preview ? (
+                          <Image
+                            fill
+                            className="object-cover"
+                            src={preview}
+                            alt="Preview favicon"
+                          />
+                        ) : (
+                          <Text
+                            variant={"muted"}
+                            className="p-2 text-center text-xs"
+                          >
+                            Нет иконки
+                          </Text>
+                        )}
+                      </div>
+
+                      <div className="flex flex-col gap-1">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => upload.current?.click()}
                         >
-                          <XIcon />
-                        </InputGroupButton>
-                      </InputGroupAddon>
+                          {preview ? "Заменить иконку" : "Загрузить иконку"}
+                        </Button>
+
+                        {preview && (
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => deleteUploadFavicon(field)}
+                          >
+                            <XIcon className="mr-2 size-4" />
+                            Удалить
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
                     )}
-                  </InputGroup>
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
+                  </Field>
+                )}
+              />
+
+              <Controller
+                control={form.control}
+                name="name"
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor="project-title">
+                      Название проекта
+                    </FieldLabel>
+                    <InputGroup>
+                      <InputGroupInput
+                        {...field}
+                        id="project-title"
+                        aria-invalid={fieldState.invalid}
+                        placeholder="Введите название проекта"
+                        autoComplete="off"
+                      />
+                      {field.value.length > 0 && (
+                        <InputGroupAddon align="inline-end">
+                          <InputGroupButton
+                            aria-label="Delete"
+                            title="Delete"
+                            size="icon-xs"
+                            onClick={() => field.onChange("")}
+                          >
+                            <XIcon />
+                          </InputGroupButton>
+                        </InputGroupAddon>
+                      )}
+                    </InputGroup>
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+            </div>
 
             <Controller
               control={form.control}
