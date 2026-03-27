@@ -4,29 +4,50 @@ import { ProjectFormValues } from "#mod/projects/schemas";
 import { prisma } from "#server/db/db";
 import { Project } from "@/generated/prisma/client";
 import { revalidatePath } from "next/cache";
+import { put } from "@vercel/blob";
 import slugify from "slugify";
 
 type ActionResult = { success: true } | { success: false; error: string };
 
-export async function createProject(data: ProjectFormValues) {
+export async function createProject(data: FormData) {
   try {
-    const slug = slugify(data.name, { lower: true, strict: true });
+    const name = data.get("name") as string;
+    const description = data.get("description") as string;
+    const stack = data.getAll("stack") as string[];
+    const favicon = data.get("favicon") as File | null;
+
+    const slug = slugify(name, { lower: true, strict: true });
+
+    let faviconUrl: string | undefined = undefined;
+
+    if (favicon && favicon.size > 0) {
+      const { url } = await put(`projects/${favicon.name}`, favicon, {
+        access: "public",
+        addRandomSuffix: true,
+      });
+      faviconUrl = url;
+    }
+
     const project = await prisma.project.create({
       data: {
-        name: data.name,
-        description: data.description,
-        slug: slug,
+        name,
+        description,
+        slug,
         status: "WORKING_NOW",
+        favicon: faviconUrl,
         stack: {
-          connect: data.stack.map((id) => ({ id })),
+          connect: stack.map((id) => ({ id })),
         },
       },
     });
+
     revalidatePath("/");
+    revalidatePath("/projects");
+
     return { success: true, project };
   } catch (error) {
     console.error("Create Project Error:", error);
-    return { success: false, error: "Не удалось создать проект" };
+    return { error: error };
   }
 }
 
