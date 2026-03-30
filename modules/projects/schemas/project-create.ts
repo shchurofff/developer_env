@@ -12,10 +12,10 @@ export const projectSchema = z.object({
     .min(20, "Описание должно быть более информативным")
     .max(100, "Описание не должно превышать 100 символов"),
   stack: z.array(z.string()).min(1, "Выберите хотя бы одну технологию"),
-  startDate: z.date({
+  startDay: z.date({
     error: "Пожалуйста, укажите дату старта работы",
   }),
-  endDate: z.date().optional(),
+  endDay: z.date().optional(),
   status: z.enum(["WORKING_NOW", "WORKED"]),
   favicon: z
     .instanceof(File)

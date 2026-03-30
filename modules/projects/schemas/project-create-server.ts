@@ -4,8 +4,8 @@ export const projectServerSchema = z.object({
   name: z.string().trim().min(3).max(32),
   description: z.string().trim().min(20).max(100),
   stack: z.array(z.string()).min(1),
-  startDate: z.coerce.date(),
-  endDate: z
+  startDay: z.coerce.date(),
+  endDay: z
     .preprocess(
       (value) => (value === null || value === "" ? undefined : value),
       z.coerce.date().optional()
