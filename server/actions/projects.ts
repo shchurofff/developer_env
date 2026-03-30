@@ -1,53 +1,56 @@
 "use server";
 
-import { ProjectFormValues } from "#mod/projects/schemas";
+import { ProjectFormValues, projectServerSchema } from "#mod/projects/schemas";
 import { prisma } from "#server/db/db";
-import { Project } from "@/generated/prisma/client";
+import { Project, ProjectStatus } from "@/generated/prisma/client";
 import { revalidatePath } from "next/cache";
 import { put } from "@vercel/blob";
 import slugify from "slugify";
+import { parseFormData } from "#mod/projects/utils";
 
 type ActionResult = { success: true } | { success: false; error: string };
 
-export async function createProject(data: FormData) {
+export async function createProject(formData: FormData): Promise<ActionResult> {
   try {
-    const name = data.get("name") as string;
-    const description = data.get("description") as string;
-    const stack = data.getAll("stack") as string[];
-    const favicon = data.get("favicon") as File | null;
+    const raw = parseFormData(formData);
+    const data = projectServerSchema.parse(raw);
 
-    const slug = slugify(name, { lower: true, strict: true });
+    const slug = slugify(data.name, { lower: true, strict: true });
 
-    let faviconUrl: string | undefined = undefined;
+    let faviconUrl: string | undefined;
 
-    if (favicon && favicon.size > 0) {
-      const { url } = await put(`projects/${favicon.name}`, favicon, {
-        access: "public",
-        addRandomSuffix: true,
-      });
+    if (data.favicon && data.favicon.size > 0) {
+      const { url } = await put(
+        `/projects/${Date.now()}-${data.favicon.name}`,
+        data.favicon,
+        { access: "public" }
+      );
       faviconUrl = url;
     }
-
-    const project = await prisma.project.create({
+    await prisma.project.create({
       data: {
-        name,
-        description,
+        name: data.name,
+        description: data.description,
         slug,
-        status: "WORKING_NOW",
+        startDay: data.startDate,
+        status: data.status,
         favicon: faviconUrl,
         stack: {
-          connect: stack.map((id) => ({ id })),
+          connect: data.stack.map((id) => ({
+            id,
+          })),
         },
       },
     });
-
     revalidatePath("/");
     revalidatePath("/projects");
-
-    return { success: true, project };
+    return { success: true };
   } catch (error) {
-    console.error("Create Project Error:", error);
-    return { error: error };
+    return {
+      success: false,
+      error: `Ошибка при создании проекта:
+      ${error}`,
+    };
   }
 }
 
