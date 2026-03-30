@@ -2,6 +2,8 @@
 
 import {
   Button,
+  Checkbox,
+  DatePickerSimple,
   Dialog,
   DialogClose,
   DialogContent,
@@ -27,7 +29,7 @@ import {
   MultiSelectValue,
   Text,
 } from "#ui";
-import { ChangeEvent, FC, useEffect, useRef, useState } from "react";
+import { ChangeEvent, FC, useRef, useState } from "react";
 import { ProjectFormValues, projectSchema } from "#mod/projects/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, ControllerRenderProps, useForm } from "react-hook-form";
@@ -77,6 +79,8 @@ export const ProjectCreateModal: FC<ProjectCreateModalProps> = ({
       description: "",
       stack: [],
       favicon: undefined,
+      startDate: undefined,
+      status: "WORKING_NOW",
     },
   });
 
@@ -84,6 +88,10 @@ export const ProjectCreateModal: FC<ProjectCreateModalProps> = ({
     const formData = new FormData();
     formData.append("name", data.name);
     formData.append("description", data.description);
+    formData.append("startDate", data.startDate.toISOString());
+
+    formData.append("status", data.status);
+
     data.stack.forEach((id) => formData.append("stack", id));
     if (data.favicon) formData.append("favicon", data.favicon);
     const result = await createProject(formData);
@@ -263,6 +271,49 @@ export const ProjectCreateModal: FC<ProjectCreateModalProps> = ({
                     </MultiSelectContent>
                   </MultiSelect>
 
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+
+            <Controller
+              control={form.control}
+              name="startDate"
+              render={({ field, fieldState }) => (
+                <div>
+                  <DatePickerSimple
+                    label="Дата старта работы"
+                    id={"project-start-date"}
+                    value={field.value}
+                    onChange={field.onChange}
+                    isInvalid={fieldState.invalid}
+                    className="w-3xs"
+                  />
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </div>
+              )}
+            />
+
+            <Controller
+              control={form.control}
+              name="status"
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <div className="flex gap-3">
+                    <FieldLabel htmlFor="project-work-status">
+                      Разрабатываю сейчас
+                    </FieldLabel>
+                    <Checkbox
+                      checked={field.value === "WORKING_NOW"}
+                      onCheckedChange={(checked) =>
+                        field.onChange(checked ? "WORKING_NOW" : "WORKED")
+                      }
+                    />
+                  </div>
                   {fieldState.invalid && (
                     <FieldError errors={[fieldState.error]} />
                   )}
