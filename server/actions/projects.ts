@@ -1,8 +1,8 @@
 "use server";
 
-import { ProjectFormValues, projectServerSchema } from "#mod/projects/schemas";
+import { projectServerSchema } from "#mod/projects/schemas";
 import { prisma } from "#server/db/db";
-import { Project, ProjectStatus } from "@/generated/prisma/client";
+import { Project } from "@/generated/prisma/client";
 import { revalidatePath } from "next/cache";
 import { put } from "@vercel/blob";
 import slugify from "slugify";
@@ -33,6 +33,7 @@ export async function createProject(formData: FormData): Promise<ActionResult> {
         description: data.description,
         slug,
         startDay: data.startDate,
+        endDay: data.status === "WORKED" ? data.endDate : null,
         status: data.status,
         favicon: faviconUrl,
         stack: {
@@ -45,11 +46,10 @@ export async function createProject(formData: FormData): Promise<ActionResult> {
     revalidatePath("/");
     revalidatePath("/projects");
     return { success: true };
-  } catch (error) {
+  } catch {
     return {
       success: false,
-      error: `Ошибка при создании проекта:
-      ${error}`,
+      error: `Ошибка при создании проекта.`,
     };
   }
 }
@@ -67,7 +67,7 @@ export async function updateProject(
     revalidatePath(`/projects/${id}`);
     revalidatePath("/");
     return { success: true };
-  } catch (error) {
+  } catch {
     return { error: "Ошибка при обновлении проекта" };
   }
 }

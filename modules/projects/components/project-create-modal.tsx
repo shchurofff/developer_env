@@ -2,7 +2,6 @@
 
 import {
   Button,
-  Checkbox,
   DatePickerSimple,
   Dialog,
   DialogClose,
@@ -12,6 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
   Field,
+  FieldDescription,
   FieldError,
   FieldGroup,
   FieldLabel,
@@ -27,12 +27,23 @@ import {
   MultiSelectItem,
   MultiSelectTrigger,
   MultiSelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Spinner,
   Text,
 } from "#ui";
-import { ChangeEvent, FC, useRef, useState } from "react";
+import { ChangeEvent, FC, useEffect, useRef, useState } from "react";
 import { ProjectFormValues, projectSchema } from "#mod/projects/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Controller, ControllerRenderProps, useForm } from "react-hook-form";
+import {
+  Controller,
+  ControllerRenderProps,
+  useForm,
+  useWatch,
+} from "react-hook-form";
 import { createProject } from "#server/actions";
 import { Technology } from "@/generated/prisma/browser";
 import { XIcon } from "lucide-react";
@@ -80,15 +91,31 @@ export const ProjectCreateModal: FC<ProjectCreateModalProps> = ({
       stack: [],
       favicon: undefined,
       startDate: undefined,
+      endDate: undefined,
       status: "WORKING_NOW",
     },
   });
+
+  const status = useWatch({
+    control: form.control,
+    name: "status",
+  });
+
+  useEffect(() => {
+    if (status === "WORKING_NOW") {
+      form.setValue("endDate", undefined);
+    }
+  }, [form, status]);
 
   const onFormSubmit = async (data: ProjectFormValues) => {
     const formData = new FormData();
     formData.append("name", data.name);
     formData.append("description", data.description);
     formData.append("startDate", data.startDate.toISOString());
+
+    if (data.endDate) {
+      formData.append("endDate", data.endDate.toISOString());
+    }
 
     formData.append("status", data.status);
 
@@ -125,6 +152,9 @@ export const ProjectCreateModal: FC<ProjectCreateModalProps> = ({
         <form
           id="project-create-form"
           onSubmit={form.handleSubmit(onFormSubmit)}
+          className={
+            form.formState.isSubmitting ? "pointer-events-none opacity-70" : ""
+          }
         >
           <FieldGroup>
             <div className="flex gap-2">
@@ -280,46 +310,74 @@ export const ProjectCreateModal: FC<ProjectCreateModalProps> = ({
 
             <Controller
               control={form.control}
-              name="startDate"
-              render={({ field, fieldState }) => (
-                <div>
-                  <DatePickerSimple
-                    label="Дата старта работы"
-                    id={"project-start-date"}
-                    value={field.value}
-                    onChange={field.onChange}
-                    isInvalid={fieldState.invalid}
-                    className="w-3xs"
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </div>
-              )}
-            />
-
-            <Controller
-              control={form.control}
               name="status"
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <div className="flex gap-3">
-                    <FieldLabel htmlFor="project-work-status">
-                      Разрабатываю сейчас
-                    </FieldLabel>
-                    <Checkbox
-                      checked={field.value === "WORKING_NOW"}
-                      onCheckedChange={(checked) =>
-                        field.onChange(checked ? "WORKING_NOW" : "WORKED")
-                      }
-                    />
-                  </div>
+                  <FieldLabel htmlFor="project-status">
+                    Статус проекта
+                  </FieldLabel>
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger
+                      id="project-status"
+                      aria-invalid={fieldState.invalid}
+                      className="w-xs"
+                    >
+                      <SelectValue placeholder="Выберите статус" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="WORKING_NOW">В работе</SelectItem>
+                      <SelectItem value="WORKED">Завершён</SelectItem>
+                    </SelectContent>
+                  </Select>
                   {fieldState.invalid && (
                     <FieldError errors={[fieldState.error]} />
                   )}
                 </Field>
               )}
             />
+
+            <div className="grid gap-4 md:grid-cols-2 md:items-start">
+              <Controller
+                control={form.control}
+                name="startDate"
+                render={({ field, fieldState }) => (
+                  <div>
+                    <DatePickerSimple
+                      label="Дата старта работы"
+                      id={"project-start-date"}
+                      value={field.value}
+                      onChange={field.onChange}
+                      isInvalid={fieldState.invalid}
+                      className="w-full"
+                    />
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </div>
+                )}
+              />
+
+              <Controller
+                control={form.control}
+                name="endDate"
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <DatePickerSimple
+                      label="Дата завершения работы"
+                      id={"project-end-date"}
+                      value={field.value}
+                      onChange={field.onChange}
+                      isInvalid={fieldState.invalid}
+                      disabled={status !== "WORKED"}
+                      className="w-full"
+                    />
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+            </div>
 
             <Controller
               control={form.control}
@@ -363,7 +421,12 @@ export const ProjectCreateModal: FC<ProjectCreateModalProps> = ({
               Отменить
             </Button>
           </DialogClose>
-          <Button type="submit" form="project-create-form">
+          <Button
+            type="submit"
+            form="project-create-form"
+            disabled={form.formState.isSubmitting}
+          >
+            {form.formState.isSubmitting && <Spinner className="mr-2" />}
             Сохранить
           </Button>
         </DialogFooter>

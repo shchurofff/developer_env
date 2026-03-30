@@ -18,6 +18,7 @@ interface DatePickerSimpleProps {
   value?: Date;
   onChange: (value?: Date) => void;
   isInvalid?: boolean;
+  disabled?: boolean;
   className?: string;
 }
 
@@ -26,19 +27,25 @@ export function DatePickerSimple({
   value,
   onChange,
   isInvalid,
+  disabled,
   label,
   className,
 }: DatePickerSimpleProps) {
   return (
-    <Field data-invalid={isInvalid} className={cn("w-auto", className)}>
+    <Field
+      data-invalid={isInvalid}
+      data-disabled={disabled}
+      className={cn("w-auto", className)}
+    >
       <FieldLabel htmlFor={id}>{label}</FieldLabel>
       <Popover>
         <PopoverTrigger asChild>
           <Button
             variant="outline"
             id={id}
-            className="justify-start font-normal"
+            className="w-full justify-start font-normal data-[disabled=true]:opacity-60"
             aria-invalid={isInvalid}
+            disabled={disabled}
           >
             {value ? (
               format(value, "dd.MM.yyyy")
@@ -51,7 +58,7 @@ export function DatePickerSimple({
           <Calendar
             mode="single"
             selected={value}
-            onSelect={onChange}
+            onSelect={disabled ? undefined : onChange}
             defaultMonth={value}
           />
         </PopoverContent>
