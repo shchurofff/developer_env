@@ -13,7 +13,7 @@ export default function Home() {
         flickerChance={0.1}
       />
 
-      <div className="relative z-10 flex h-screen w-full flex-col items-center justify-center space-y-5">
+      <div className="relative flex h-screen w-full flex-col items-center justify-center space-y-5">
         <Heading>Developer Environment</Heading>
         <Text>
           Управляй проектами, фиксируй задачи и храни знания в одном месте.
