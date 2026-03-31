@@ -39,6 +39,9 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
         </div>
         <Text>{project.description}</Text>
       </div>
+      <Heading className="mt-7" level={"h2"}>
+        This page will be updated later
+      </Heading>
     </div>
   );
 }
