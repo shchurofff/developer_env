@@ -31,6 +31,8 @@ export const ProjectsView: FC<ProjectsViewProps> = ({
 }) => {
   const [searchValue, setSearchValue] = useState("");
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [editingProject, setEditingProject] =
+    useState<ProjectWithTaskCount | null>(null);
 
   const filteredProjects = initialProjects.filter((p) =>
     p.name.toLowerCase().includes(searchValue.toLowerCase())
@@ -44,6 +46,16 @@ export const ProjectsView: FC<ProjectsViewProps> = ({
       return;
     }
     toast.success("Проект успешно удалён");
+  };
+
+  const handeCreateProject = () => {
+    setEditingProject(null);
+    setShowCreateModal(true);
+  };
+
+  const handleEditProject = (project: ProjectWithTaskCount) => {
+    setEditingProject(project);
+    setShowCreateModal(true);
   };
 
   return (
@@ -71,11 +83,15 @@ export const ProjectsView: FC<ProjectsViewProps> = ({
       <ProjectsFilters
         searchValue={searchValue}
         setSeachValue={setSearchValue}
-        showModal={showCreateModal}
-        setShowModal={setShowCreateModal}
+        onCreate={handeCreateProject}
       />
       {filteredProjects.map((proj) => (
-        <ProjectCard key={proj.id} project={proj} onDelete={handleDelete} />
+        <ProjectCard
+          key={proj.id}
+          project={proj}
+          onDelete={handleDelete}
+          onEdit={handleEditProject}
+        />
       ))}
       {!filteredProjects.length && (
         <Empty>
@@ -110,6 +126,7 @@ export const ProjectsView: FC<ProjectsViewProps> = ({
         isOpen={showCreateModal}
         stack={stack}
         onOpenChange={setShowCreateModal}
+        project={editingProject}
       />
     </div>
   );

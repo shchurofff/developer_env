@@ -23,7 +23,13 @@ import {
   Heading,
   Text,
 } from "#ui";
-import { CheckCheck, MoveRight, Trash2, Trash2Icon } from "lucide-react";
+import {
+  CheckCheck,
+  MoveRight,
+  PenBoxIcon,
+  Trash2,
+  Trash2Icon,
+} from "lucide-react";
 import Link from "next/link";
 import { FC, useTransition } from "react";
 import { STATUS_CONFIG } from "../utils";
@@ -34,9 +40,14 @@ import { ProjectStack } from "./project-stack";
 interface ProjectCardProps {
   project: ProjectWithTaskCount;
   onDelete: (id: string) => Promise<void>;
+  onEdit: (project: ProjectWithTaskCount) => void;
 }
 
-export const ProjectCard: FC<ProjectCardProps> = ({ project, onDelete }) => {
+export const ProjectCard: FC<ProjectCardProps> = ({
+  project,
+  onDelete,
+  onEdit,
+}) => {
   const [isPending, startTransition] = useTransition();
 
   const projectStatus = STATUS_CONFIG[project.status] || {
@@ -68,10 +79,21 @@ export const ProjectCard: FC<ProjectCardProps> = ({ project, onDelete }) => {
             {project.name}
           </Heading>
         </CardTitle>
-        <CardDescription>
-          <Text variant={"muted"}>{project.description}</Text>
+        <CardDescription className="w-full min-w-0">
+          <Text variant={"muted"} className="line-clamp-2 wrap-break-word">
+            {project.description}
+          </Text>
         </CardDescription>
         <CardAction>
+          <Button
+            variant={"ghost"}
+            size={"icon-lg"}
+            className="cursor-pointer opacity-50 hover:opacity-100"
+            onClick={() => onEdit(project)}
+          >
+            <PenBoxIcon />
+          </Button>
+
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button

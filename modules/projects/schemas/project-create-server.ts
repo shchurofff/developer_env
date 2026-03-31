@@ -2,7 +2,7 @@ import * as z from "zod";
 
 export const projectServerSchema = z.object({
   name: z.string().trim().min(3).max(32),
-  description: z.string().trim().min(20).max(100),
+  description: z.string().trim().min(20).max(150),
   stack: z.array(z.string()).min(1),
   startDay: z.coerce.date(),
   endDay: z

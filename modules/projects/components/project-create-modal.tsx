@@ -11,7 +11,6 @@ import {
   DialogHeader,
   DialogTitle,
   Field,
-  FieldDescription,
   FieldError,
   FieldGroup,
   FieldLabel,
@@ -41,28 +40,48 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Controller,
   ControllerRenderProps,
+  DefaultValues,
   useForm,
   useWatch,
 } from "react-hook-form";
-import { createProject } from "#server/actions";
+import { createProject, updateProject } from "#server/actions";
 import { Technology } from "@/generated/prisma/browser";
 import { XIcon } from "lucide-react";
 import Image from "next/image";
 import { toast } from "sonner";
+import { ProjectWithTaskCount } from "#server/services/projects";
 
 interface ProjectCreateModalProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   stack: Technology[];
+  project?: ProjectWithTaskCount | null;
 }
+
+const getDefaultFormValues = (
+  project?: ProjectWithTaskCount | null
+): DefaultValues<ProjectFormValues> => ({
+  name: project?.name ?? "",
+  description: project?.description ?? "",
+  stack: project?.stack.map((technology) => technology.id) ?? [],
+  favicon: undefined,
+  startDay: project?.startDay ? new Date(project.startDay) : undefined,
+  endDay: project?.endDay ? new Date(project.endDay) : undefined,
+  status: project?.status ?? "WORKING_NOW",
+});
 
 export const ProjectCreateModal: FC<ProjectCreateModalProps> = ({
   isOpen,
   onOpenChange,
   stack,
+  project,
 }) => {
-  const [preview, setPreview] = useState<string | null>(null);
+  const isEdit = !!project;
+
+  const [preview, setPreview] = useState<string | null | undefined>(undefined);
   const upload = useRef<HTMLInputElement | null>(null);
+  const previewSrc =
+    preview === undefined ? (project?.favicon ?? null) : preview;
 
   const onUploadFavicon = (
     event: ChangeEvent<HTMLInputElement>,
@@ -85,15 +104,7 @@ export const ProjectCreateModal: FC<ProjectCreateModalProps> = ({
 
   const form = useForm<ProjectFormValues>({
     resolver: zodResolver(projectSchema),
-    defaultValues: {
-      name: "",
-      description: "",
-      stack: [],
-      favicon: undefined,
-      startDate: undefined,
-      endDate: undefined,
-      status: "WORKING_NOW",
-    },
+    defaultValues: getDefaultFormValues(project),
   });
 
   const status = useWatch({
@@ -103,49 +114,76 @@ export const ProjectCreateModal: FC<ProjectCreateModalProps> = ({
 
   useEffect(() => {
     if (status === "WORKING_NOW") {
-      form.setValue("endDate", undefined);
+      form.setValue("endDay", undefined);
     }
   }, [form, status]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
+    form.reset(getDefaultFormValues(project));
+
+    if (upload.current) {
+      upload.current.value = "";
+    }
+  }, [form, isOpen, project]);
 
   const onFormSubmit = async (data: ProjectFormValues) => {
     const formData = new FormData();
     formData.append("name", data.name);
     formData.append("description", data.description);
-    formData.append("startDate", data.startDate.toISOString());
+    formData.append("startDay", data.startDay.toISOString());
 
-    if (data.endDate) {
-      formData.append("endDate", data.endDate.toISOString());
+    if (data.endDay) {
+      formData.append("endDay", data.endDay.toISOString());
     }
 
     formData.append("status", data.status);
 
     data.stack.forEach((id) => formData.append("stack", id));
     if (data.favicon) formData.append("favicon", data.favicon);
-    const result = await createProject(formData);
+    const result = isEdit
+      ? await updateProject(project.id, formData)
+      : await createProject(formData);
 
     if (!result.success) {
       toast.error(result.error as string);
       return;
     }
-    toast.success("Проект успешно добавлен");
+    toast.success(
+      isEdit ? "Проект успешно обновлён" : "Проект успешно добавлен"
+    );
 
-    console.log("Create Project with data:", data);
     onOpenChange(false);
-    form.reset();
-    setPreview(null);
+    form.reset(getDefaultFormValues(null));
+    setPreview(undefined);
+  };
+
+  const handleOpenChange = (open: boolean) => {
+    if (!open) {
+      setPreview(undefined);
+      form.reset(getDefaultFormValues(project));
+    }
+
+    onOpenChange(open);
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent
         showCloseButton={false}
         className="max-h-[80vh] min-w-2xl overflow-y-auto"
       >
         <DialogHeader>
-          <DialogTitle>Добавление проекта</DialogTitle>
+          <DialogTitle>
+            {isEdit ? "Редактирование проекта" : "Добавление проекта"}
+          </DialogTitle>
           <DialogDescription>
-            В данной форме вы можете добавить всю подробную информацию о
-            проекте, над которым работали
+            {isEdit
+              ? "Измените данные проекта и сохраните обновления."
+              : "В данной форме вы можете добавить всю подробную информацию о проекте, над которым работали"}
           </DialogDescription>
         </DialogHeader>
 
@@ -187,11 +225,11 @@ export const ProjectCreateModal: FC<ProjectCreateModalProps> = ({
                         className="bg-muted hover:bg-muted/80 focus-visible:ring-ring relative flex size-16 shrink-0 cursor-pointer items-center justify-center overflow-hidden border border-dashed transition-colors focus-visible:ring-2 focus-visible:outline-none"
                         title="Нажмите, чтобы выбрать файл"
                       >
-                        {preview ? (
+                        {previewSrc ? (
                           <Image
                             fill
                             className="object-cover"
-                            src={preview}
+                            src={previewSrc}
                             alt="Preview favicon"
                           />
                         ) : (
@@ -211,10 +249,10 @@ export const ProjectCreateModal: FC<ProjectCreateModalProps> = ({
                           size="sm"
                           onClick={() => upload.current?.click()}
                         >
-                          {preview ? "Заменить иконку" : "Загрузить иконку"}
+                          {previewSrc ? "Заменить иконку" : "Загрузить иконку"}
                         </Button>
 
-                        {preview && (
+                        {previewSrc && (
                           <Button
                             type="button"
                             variant="destructive"
@@ -339,7 +377,7 @@ export const ProjectCreateModal: FC<ProjectCreateModalProps> = ({
             <div className="grid gap-4 md:grid-cols-2 md:items-start">
               <Controller
                 control={form.control}
-                name="startDate"
+                name="startDay"
                 render={({ field, fieldState }) => (
                   <div>
                     <DatePickerSimple
@@ -359,7 +397,7 @@ export const ProjectCreateModal: FC<ProjectCreateModalProps> = ({
 
               <Controller
                 control={form.control}
-                name="endDate"
+                name="endDay"
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
                     <DatePickerSimple
@@ -398,7 +436,7 @@ export const ProjectCreateModal: FC<ProjectCreateModalProps> = ({
                     />
                     <InputGroupAddon align={"block-end"}>
                       <InputGroupText className="tabular-nums">
-                        {field.value.length}/100 characters
+                        {field.value.length}/150 characters
                       </InputGroupText>
                     </InputGroupAddon>
                   </InputGroup>
@@ -416,7 +454,7 @@ export const ProjectCreateModal: FC<ProjectCreateModalProps> = ({
             <Button
               type="button"
               variant="outline"
-              onClick={() => form.reset()}
+              onClick={() => form.reset(getDefaultFormValues(project))}
             >
               Отменить
             </Button>
@@ -427,7 +465,7 @@ export const ProjectCreateModal: FC<ProjectCreateModalProps> = ({
             disabled={form.formState.isSubmitting}
           >
             {form.formState.isSubmitting && <Spinner className="mr-2" />}
-            Сохранить
+            {isEdit ? "Сохранить изменения" : "Сохранить"}
           </Button>
         </DialogFooter>
       </DialogContent>
