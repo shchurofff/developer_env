@@ -5,8 +5,6 @@ import { Dispatch, FC, SetStateAction } from "react";
 interface ProjectsFiltersProps {
   searchValue: string;
   setSeachValue: Dispatch<SetStateAction<string>>;
-  // showModal: boolean;
-  // setShowModal: Dispatch<SetStateAction<boolean>>;
   onCreate: () => void;
 }
 
