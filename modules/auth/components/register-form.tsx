@@ -15,10 +15,14 @@ import {
   InputGroupAddon,
   InputGroupButton,
   InputGroupInput,
+  Spinner,
 } from "#ui";
 import { XIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export const RegisterForm = () => {
+  const router = useRouter();
+
   const form = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
@@ -37,9 +41,13 @@ export const RegisterForm = () => {
       callbackURL: "/projects",
     });
     if (result.error) {
-      toast.error(result.error.message as string);
+      toast.error(result.error.message ?? "Не удалось зарегистрироваться");
       return;
     }
+
+    toast.success("Аккаунт успешно создан");
+    router.replace("/projects");
+    router.refresh();
   };
   return (
     <div>
@@ -58,6 +66,7 @@ export const RegisterForm = () => {
                     aria-invalid={fieldState.invalid}
                     placeholder="Иван Иванов"
                     autoComplete="name"
+                    disabled={form.formState.isSubmitting}
                   />
                   {field.value.length > 0 && (
                     <InputGroupAddon align="inline-end">
@@ -92,6 +101,7 @@ export const RegisterForm = () => {
                     aria-invalid={fieldState.invalid}
                     placeholder="example@gmail.com"
                     autoComplete="email"
+                    disabled={form.formState.isSubmitting}
                   />
                   {field.value.length > 0 && (
                     <InputGroupAddon align="inline-end">
@@ -126,7 +136,8 @@ export const RegisterForm = () => {
                     aria-invalid={fieldState.invalid}
                     placeholder="Введите пароль"
                     type="password"
-                    autoComplete="current-password"
+                    autoComplete="new-password"
+                    disabled={form.formState.isSubmitting}
                   />
                   {field.value.length > 0 && (
                     <InputGroupAddon align="inline-end">
@@ -153,7 +164,9 @@ export const RegisterForm = () => {
             name="confirmPassword"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="confirmPassword">Пароль</FieldLabel>
+                <FieldLabel htmlFor="confirmPassword">
+                  Подтвердите пароль
+                </FieldLabel>
                 <InputGroup>
                   <InputGroupInput
                     {...field}
@@ -161,7 +174,8 @@ export const RegisterForm = () => {
                     aria-invalid={fieldState.invalid}
                     placeholder="Повторите пароль"
                     type="password"
-                    autoComplete="current-password"
+                    autoComplete="new-password"
+                    disabled={form.formState.isSubmitting}
                   />
                   {field.value.length > 0 && (
                     <InputGroupAddon align="inline-end">
@@ -183,7 +197,12 @@ export const RegisterForm = () => {
             )}
           />
         </FieldGroup>
-        <Button type="submit">Зарегестрироваться</Button>
+        <div className="mt-3 flex justify-end">
+          <Button type="submit" disabled={form.formState.isSubmitting}>
+            {form.formState.isSubmitting && <Spinner className="mr-2" />}
+            Зарегистрироваться
+          </Button>
+        </div>
       </form>
     </div>
   );

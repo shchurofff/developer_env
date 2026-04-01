@@ -29,7 +29,7 @@ export const getProjectBySlug = async (
   slug: Project["slug"],
   userId: Project["userId"]
 ) => {
-  const project = await prisma.project.findUnique({
+  const project = await prisma.project.findFirst({
     where: { slug, userId },
     include: {
       tasks: true,

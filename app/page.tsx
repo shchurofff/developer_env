@@ -1,7 +1,15 @@
 import { HomeCardBlock } from "#mod/home";
 import { FlickeringGrid, Heading, Text } from "#ui";
+import { getServerSession } from "@/lib/auth";
 
-export default function Home() {
+export default async function Home() {
+  const session = await getServerSession();
+  const user = session?.user
+    ? {
+        email: session?.user.email ?? null,
+        name: session?.user.name ?? null,
+      }
+    : null;
   return (
     <div className="relative min-h-screen w-full overflow-hidden">
       <FlickeringGrid
@@ -19,7 +27,7 @@ export default function Home() {
           Управляй проектами, фиксируй задачи и храни знания в одном месте.
         </Text>
 
-        <HomeCardBlock />
+        <HomeCardBlock user={user} />
       </div>
     </div>
   );

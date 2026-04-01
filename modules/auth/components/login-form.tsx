@@ -13,12 +13,17 @@ import {
   InputGroupAddon,
   InputGroupButton,
   InputGroupInput,
+  Spinner,
 } from "#ui";
 import { XIcon } from "lucide-react";
 import { authClient } from "@/lib/auth";
 import { toast } from "sonner";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export const LoginForm = () => {
+  const router = useRouter();
+
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -35,9 +40,12 @@ export const LoginForm = () => {
       callbackURL: "/projects",
     });
     if (result.error) {
-      toast.error(result.error.message as string);
+      toast.error(result.error.message ?? "Не удалось войти");
       return;
     }
+    toast.success("Вы успешно вошли");
+    router.replace("/projects");
+    router.refresh();
   };
   return (
     <div>
@@ -56,6 +64,7 @@ export const LoginForm = () => {
                     aria-invalid={fieldState.invalid}
                     placeholder="example@gmail.com"
                     autoComplete="email"
+                    disabled={form.formState.isSubmitting}
                   />
                   {field.value.length > 0 && (
                     <InputGroupAddon align="inline-end">
@@ -91,6 +100,7 @@ export const LoginForm = () => {
                     placeholder="Введите пароль"
                     type="password"
                     autoComplete="current-password"
+                    disabled={form.formState.isSubmitting}
                   />
                   {field.value.length > 0 && (
                     <InputGroupAddon align="inline-end">
@@ -112,7 +122,18 @@ export const LoginForm = () => {
             )}
           />
         </FieldGroup>
-        <Button type="submit">Войти</Button>
+        <div className="mt-2 flex items-center justify-end gap-2">
+          <Button type="submit" disabled={form.formState.isSubmitting}>
+            {form.formState.isSubmitting && <Spinner className="mr-2" />}Войти
+          </Button>
+          <Button
+            variant={"link"}
+            asChild
+            disabled={form.formState.isSubmitting}
+          >
+            <Link href={"./register"}>Ещё нет аккаунта?</Link>
+          </Button>
+        </div>
       </form>
     </div>
   );

@@ -65,7 +65,22 @@ export async function updateProject(
   id: string,
   formData: FormData
 ): Promise<ActionResult> {
+  const authData = await requireSession();
   try {
+    const existingProject = await prisma.project.findFirst({
+      where: {
+        id,
+        userId: authData.user.id,
+      },
+    });
+
+    if (!existingProject) {
+      return {
+        success: false,
+        error: "Проект не найден или у вас нет доступа",
+      };
+    }
+
     const raw = parseFormData(formData);
     const data = projectServerSchema.parse(raw);
 
@@ -82,7 +97,7 @@ export async function updateProject(
       faviconUrl = url;
     }
     await prisma.project.update({
-      where: { id },
+      where: { id: existingProject.id },
       data: {
         name: data.name,
         description: data.description,
@@ -109,9 +124,25 @@ export async function updateProject(
 }
 
 export async function deleteProject(id: string): Promise<ActionResult> {
+  const authData = await requireSession();
   try {
+    const existingProject = await prisma.project.findFirst({
+      where: {
+        id,
+        userId: authData.user.id,
+      },
+      select: { id: true },
+    });
+
+    if (!existingProject) {
+      return {
+        success: false,
+        error: "Проект не найден или у вас нет доступа",
+      };
+    }
+
     await prisma.project.delete({
-      where: { id },
+      where: { id: existingProject.id },
     });
 
     revalidatePath("/");
