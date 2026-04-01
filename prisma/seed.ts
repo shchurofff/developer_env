@@ -25,6 +25,17 @@ const ALL_TECHNOLOGIES = [
   { name: "TanStack", icon: "tanstack" },
 ];
 
+const seedUser = await prisma.user.upsert({
+  where: { email: "demo@example.com" },
+  update: {},
+  create: {
+    id: "seed-user",
+    name: "demo user",
+    email: "demo@example.com",
+    emailVerified: true,
+  },
+});
+
 const projectsData: Prisma.ProjectCreateInput[] = [
   {
     name: "FireFlow",
@@ -32,6 +43,11 @@ const projectsData: Prisma.ProjectCreateInput[] = [
     description:
       "Площадка для менеджмента сотрудников. Включает дашборды и систему контроля доступов.",
     status: "WORKED",
+    user: {
+      connect: {
+        id: seedUser.id,
+      },
+    },
     stack: {
       connectOrCreate: [
         { where: { name: "React" }, create: { name: "React", icon: "react" } },
@@ -83,6 +99,11 @@ const projectsData: Prisma.ProjectCreateInput[] = [
     description:
       "Площадка которая старается создать среду для облегчения и улучшения рутинных задач разработчика (Пет-проект)",
     status: "WORKING_NOW",
+    user: {
+      connect: {
+        id: seedUser.id,
+      },
+    },
     stack: {
       connectOrCreate: [
         {

@@ -6,10 +6,12 @@ import { revalidatePath } from "next/cache";
 import { put } from "@vercel/blob";
 import slugify from "slugify";
 import { parseFormData } from "#mod/projects/utils";
+import { requireSession } from "@/lib/auth";
 
 type ActionResult = { success: true } | { success: false; error: string };
 
 export async function createProject(formData: FormData): Promise<ActionResult> {
+  const session = await requireSession();
   try {
     const raw = parseFormData(formData);
     const data = projectServerSchema.parse(raw);
@@ -35,6 +37,11 @@ export async function createProject(formData: FormData): Promise<ActionResult> {
         endDay: data.status === "WORKED" ? data.endDay : null,
         status: data.status,
         favicon: faviconUrl,
+        user: {
+          connect: {
+            id: session.user.id,
+          },
+        },
         stack: {
           connect: data.stack.map((id) => ({
             id,
