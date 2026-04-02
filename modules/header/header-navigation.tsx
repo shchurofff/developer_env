@@ -5,7 +5,6 @@ import {
   NavigationMenuList,
   navigationMenuTriggerStyle,
 } from "#ui";
-import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 const navItems: { title: string; href: string }[] = [

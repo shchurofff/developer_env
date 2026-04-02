@@ -6,20 +6,24 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Button,
   Field,
+  FieldDescription,
   FieldError,
   FieldGroup,
   FieldLabel,
+  Heading,
   InputGroup,
   InputGroupAddon,
   InputGroupButton,
   InputGroupInput,
   Spinner,
+  Text,
 } from "#ui";
 import { XIcon } from "lucide-react";
 import { authClient } from "@/lib/auth";
 import { toast } from "sonner";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { translateAuthError } from "../utils";
 
 export const LoginForm = () => {
   const router = useRouter();
@@ -40,7 +44,11 @@ export const LoginForm = () => {
       callbackURL: "/projects",
     });
     if (result.error) {
-      toast.error(result.error.message ?? "Не удалось войти");
+      const error = translateAuthError(result.error);
+      form.setError("root.serverError", {
+        type: "server",
+        message: error ?? result.error.message,
+      });
       return;
     }
     toast.success("Вы успешно вошли");
@@ -49,6 +57,13 @@ export const LoginForm = () => {
   };
   return (
     <div>
+      <div className="mb-6 space-y-2">
+        <Heading level="h2">С возвращением</Heading>
+        <Text variant="muted">
+          Войдите в аккаунт, чтобы продолжить работу над своими проектами.
+        </Text>
+      </div>
+
       <form id="login-form" onSubmit={form.handleSubmit(onFormSubmit)}>
         <FieldGroup>
           <Controller
@@ -69,10 +84,12 @@ export const LoginForm = () => {
                   {field.value.length > 0 && (
                     <InputGroupAddon align="inline-end">
                       <InputGroupButton
-                        aria-label="Delete"
-                        title="Delete"
+                        type="button"
+                        aria-label="Очистить email"
+                        title="Очистить email"
                         size="icon-xs"
                         onClick={() => field.onChange("")}
+                        disabled={form.formState.isSubmitting}
                       >
                         <XIcon />
                       </InputGroupButton>
@@ -92,6 +109,9 @@ export const LoginForm = () => {
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
                 <FieldLabel htmlFor="password">Пароль</FieldLabel>
+                <FieldDescription>
+                  Используйте пароль, который указывали при регистрации.
+                </FieldDescription>
                 <InputGroup>
                   <InputGroupInput
                     {...field}
@@ -105,10 +125,12 @@ export const LoginForm = () => {
                   {field.value.length > 0 && (
                     <InputGroupAddon align="inline-end">
                       <InputGroupButton
-                        aria-label="Delete"
-                        title="Delete"
+                        type="button"
+                        aria-label="Очистить пароль"
+                        title="Очистить пароль"
                         size="icon-xs"
                         onClick={() => field.onChange("")}
+                        disabled={form.formState.isSubmitting}
                       >
                         <XIcon />
                       </InputGroupButton>
@@ -121,17 +143,34 @@ export const LoginForm = () => {
               </Field>
             )}
           />
+
+          {form.formState.errors.root?.serverError && (
+            <FieldError>
+              {form.formState.errors.root.serverError.message}
+            </FieldError>
+          )}
         </FieldGroup>
-        <div className="mt-2 flex items-center justify-end gap-2">
-          <Button type="submit" disabled={form.formState.isSubmitting}>
-            {form.formState.isSubmitting && <Spinner className="mr-2" />}Войти
-          </Button>
+        <div className="mt-5 space-y-3">
           <Button
-            variant={"link"}
+            type="submit"
+            disabled={form.formState.isSubmitting}
+            className="w-full"
+          >
+            {form.formState.isSubmitting && <Spinner className="mr-2" />}
+            Войти
+          </Button>
+
+          <Text variant="muted" className="text-center">
+            Ещё нет аккаунта?
+          </Text>
+
+          <Button
+            variant="outline"
             asChild
             disabled={form.formState.isSubmitting}
+            className="w-full"
           >
-            <Link href={"./register"}>Ещё нет аккаунта?</Link>
+            <Link href="/register">Создать аккаунт</Link>
           </Button>
         </div>
       </form>

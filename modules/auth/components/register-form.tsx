@@ -8,17 +8,22 @@ import { toast } from "sonner";
 import {
   Button,
   Field,
+  FieldDescription,
   FieldError,
   FieldGroup,
   FieldLabel,
+  Heading,
   InputGroup,
   InputGroupAddon,
   InputGroupButton,
   InputGroupInput,
   Spinner,
+  Text,
 } from "#ui";
 import { XIcon } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { translateAuthError } from "../utils";
 
 export const RegisterForm = () => {
   const router = useRouter();
@@ -41,7 +46,11 @@ export const RegisterForm = () => {
       callbackURL: "/projects",
     });
     if (result.error) {
-      toast.error(result.error.message ?? "Не удалось зарегистрироваться");
+      const error = translateAuthError(result.error);
+      form.setError("root.serverError", {
+        type: "server",
+        message: error ?? result.error.message,
+      });
       return;
     }
 
@@ -51,6 +60,14 @@ export const RegisterForm = () => {
   };
   return (
     <div>
+      <div className="mb-6 space-y-2">
+        <Heading level="h2">Создайте аккаунт</Heading>
+        <Text variant="muted">
+          Зарегистрируйтесь, чтобы сохранять свои проекты и продолжать работу с
+          любого устройства.
+        </Text>
+      </div>
+
       <form id="register-form" onSubmit={form.handleSubmit(onFormSubmit)}>
         <FieldGroup>
           <Controller
@@ -71,10 +88,12 @@ export const RegisterForm = () => {
                   {field.value.length > 0 && (
                     <InputGroupAddon align="inline-end">
                       <InputGroupButton
-                        aria-label="Delete"
-                        title="Delete"
+                        type="button"
+                        aria-label="Очистить имя"
+                        title="Очистить имя"
                         size="icon-xs"
                         onClick={() => field.onChange("")}
+                        disabled={form.formState.isSubmitting}
                       >
                         <XIcon />
                       </InputGroupButton>
@@ -106,10 +125,12 @@ export const RegisterForm = () => {
                   {field.value.length > 0 && (
                     <InputGroupAddon align="inline-end">
                       <InputGroupButton
-                        aria-label="Delete"
-                        title="Delete"
+                        type="button"
+                        aria-label="Очистить email"
+                        title="Очистить email"
                         size="icon-xs"
                         onClick={() => field.onChange("")}
+                        disabled={form.formState.isSubmitting}
                       >
                         <XIcon />
                       </InputGroupButton>
@@ -129,6 +150,9 @@ export const RegisterForm = () => {
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
                 <FieldLabel htmlFor="password">Пароль</FieldLabel>
+                <FieldDescription>
+                  Минимум 8 символов. Лучше использовать уникальный пароль.
+                </FieldDescription>
                 <InputGroup>
                   <InputGroupInput
                     {...field}
@@ -142,10 +166,12 @@ export const RegisterForm = () => {
                   {field.value.length > 0 && (
                     <InputGroupAddon align="inline-end">
                       <InputGroupButton
-                        aria-label="Delete"
-                        title="Delete"
+                        type="button"
+                        aria-label="Очистить пароль"
+                        title="Очистить пароль"
                         size="icon-xs"
                         onClick={() => field.onChange("")}
+                        disabled={form.formState.isSubmitting}
                       >
                         <XIcon />
                       </InputGroupButton>
@@ -180,10 +206,12 @@ export const RegisterForm = () => {
                   {field.value.length > 0 && (
                     <InputGroupAddon align="inline-end">
                       <InputGroupButton
-                        aria-label="Delete"
-                        title="Delete"
+                        type="button"
+                        aria-label="Очистить подтверждение пароля"
+                        title="Очистить подтверждение пароля"
                         size="icon-xs"
                         onClick={() => field.onChange("")}
+                        disabled={form.formState.isSubmitting}
                       >
                         <XIcon />
                       </InputGroupButton>
@@ -196,11 +224,33 @@ export const RegisterForm = () => {
               </Field>
             )}
           />
+          {form.formState.errors.root?.serverError && (
+            <FieldError>
+              {form.formState.errors.root.serverError.message}
+            </FieldError>
+          )}
         </FieldGroup>
-        <div className="mt-3 flex justify-end">
-          <Button type="submit" disabled={form.formState.isSubmitting}>
+        <div className="mt-5 space-y-3">
+          <Button
+            type="submit"
+            disabled={form.formState.isSubmitting}
+            className="w-full"
+          >
             {form.formState.isSubmitting && <Spinner className="mr-2" />}
             Зарегистрироваться
+          </Button>
+
+          <Text variant="muted" className="text-center">
+            Уже есть аккаунт?
+          </Text>
+
+          <Button
+            variant="outline"
+            asChild
+            disabled={form.formState.isSubmitting}
+            className="w-full"
+          >
+            <Link href="/login">Войти</Link>
           </Button>
         </div>
       </form>
