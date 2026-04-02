@@ -55,6 +55,19 @@ export const LoginForm = () => {
     router.replace("/projects");
     router.refresh();
   };
+
+  const handleGuestStart = async () => {
+    const result = await authClient.signIn.anonymous();
+    if (result.error) {
+      console.error(result.error);
+      toast.error("Не удалось войти в гостевой режим");
+      return;
+    }
+
+    toast.success("Гостевой режим активирован");
+    router.push("/projects");
+    router.refresh();
+  };
   return (
     <div>
       <div className="mb-6 space-y-2">
@@ -158,6 +171,15 @@ export const LoginForm = () => {
           >
             {form.formState.isSubmitting && <Spinner className="mr-2" />}
             Войти
+          </Button>
+
+          <Button
+            variant="outline"
+            type="button"
+            className="w-full"
+            onClick={handleGuestStart}
+          >
+            Войти как гость
           </Button>
 
           <Text variant="muted" className="text-center">

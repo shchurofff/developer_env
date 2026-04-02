@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 export default async function RegisterPage() {
   const auth = await getServerSession();
 
-  if (auth) {
+  if (auth && !auth.user.isAnonymous) {
     redirect("/projects");
   }
   return (

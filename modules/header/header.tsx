@@ -1,27 +1,48 @@
 "use client";
 
 import {
+  Badge,
   Button,
   Separator,
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "#ui";
-import { authClient } from "@/lib/auth";
+import { authClient, CurrentUser } from "@/lib/auth";
 import { ModeToggle } from "../../components/mode-toggle";
 import { HeaderLogo } from "./header-logo";
 import { HeaderNavigation } from "./header-navigation";
 import { LogOutIcon } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { User } from "@/generated/prisma/client";
+import { FC } from "react";
+import { AnonymousLogOutButton } from "./anonymous-logout-button";
+import { LogOutButton } from "./logout-button";
 
-export const Header = () => {
+interface HeaderProps {
+  user: CurrentUser;
+}
+
+export const Header: FC<HeaderProps> = ({ user }) => {
   const router = useRouter();
+  const anonymousUser = user.isAnonymous;
 
   const handleLogOut = async () => {
     const result = await authClient.signOut();
     if (!result.error) {
       toast.success("Вы вышли из аккаунта");
+      router.replace("/");
+      router.refresh();
+      return;
+    }
+    toast.error(result.error.message ?? "Не удалось выйти");
+  };
+
+  const handleAnonymousLogOut = async () => {
+    const result = await authClient.deleteAnonymousUser();
+    if (!result.error) {
+      toast.success("Вы вышли из гостевого аккаунта");
       router.replace("/");
       router.refresh();
       return;
@@ -39,21 +60,14 @@ export const Header = () => {
       <div className="flex items-center justify-center gap-2">
         <ModeToggle />
 
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              size={"icon"}
-              variant={"ghost"}
-              className="cursor-pointer"
-              onClick={handleLogOut}
-            >
-              <LogOutIcon />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Выйти</p>
-          </TooltipContent>
-        </Tooltip>
+        {anonymousUser ? (
+          <>
+            <AnonymousLogOutButton onLogout={handleAnonymousLogOut} />
+            <Badge>Demo</Badge>
+          </>
+        ) : (
+          <LogOutButton onLogout={handleLogOut} />
+        )}
       </div>
     </header>
   );

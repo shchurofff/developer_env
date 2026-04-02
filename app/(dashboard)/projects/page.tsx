@@ -10,8 +10,7 @@ export default async function ProjectsPage() {
   const session = await requireSession();
   const data = await getProjects(session.user.id);
   const stack = await getTechnologyStack();
-  console.log(data);
-  console.log(stack);
+  console.log(session);
 
   return (
     <div className="flex flex-col gap-4">
