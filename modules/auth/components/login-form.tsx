@@ -24,6 +24,7 @@ import { toast } from "sonner";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { translateAuthError } from "../utils";
+import { SiGithub, SiGoogle } from "react-icons/si";
 
 export const LoginForm = () => {
   const router = useRouter();
@@ -67,6 +68,34 @@ export const LoginForm = () => {
     toast.success("Гостевой режим активирован");
     router.push("/projects");
     router.refresh();
+  };
+  const handleGitHubLogIn = async () => {
+    const result = await authClient.signIn.social({
+      provider: "github",
+      callbackURL: "/projects",
+    });
+    if (result.error) {
+      const error = translateAuthError(result.error);
+      form.setError("root.serverError", {
+        type: "server",
+        message: error ?? result.error.message,
+      });
+      return;
+    }
+  };
+  const handleGoogleLogIn = async () => {
+    const result = await authClient.signIn.social({
+      provider: "google",
+      callbackURL: "/projects",
+    });
+    if (result.error) {
+      const error = translateAuthError(result.error);
+      form.setError("root.serverError", {
+        type: "server",
+        message: error ?? result.error.message,
+      });
+      return;
+    }
   };
   return (
     <div>
@@ -177,6 +206,32 @@ export const LoginForm = () => {
             variant="outline"
             type="button"
             className="w-full"
+            onClick={handleGitHubLogIn}
+            disabled={form.formState.isSubmitting}
+          >
+            <SiGithub />
+            Войти через GitHub
+          </Button>
+
+          <Button
+            variant="outline"
+            type="button"
+            className="w-full"
+            onClick={handleGoogleLogIn}
+            disabled={form.formState.isSubmitting}
+          >
+            <SiGoogle />
+            Войти через Google
+          </Button>
+
+          <Text variant="muted" className="text-center">
+            или
+          </Text>
+
+          <Button
+            variant="secondary"
+            type="button"
+            className="w-full"
             onClick={handleGuestStart}
           >
             Войти как гость
@@ -187,7 +242,6 @@ export const LoginForm = () => {
           </Text>
 
           <Button
-            variant="outline"
             asChild
             disabled={form.formState.isSubmitting}
             className="w-full"

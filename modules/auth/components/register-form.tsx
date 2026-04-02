@@ -24,6 +24,7 @@ import { XIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { translateAuthError } from "../utils";
+import { SiGithub, SiGoogle } from "react-icons/si";
 
 export const RegisterForm = () => {
   const router = useRouter();
@@ -57,6 +58,36 @@ export const RegisterForm = () => {
     toast.success("Аккаунт успешно создан");
     router.replace("/projects");
     router.refresh();
+  };
+
+  const handleGitHubLogIn = async () => {
+    const result = await authClient.signIn.social({
+      provider: "github",
+      callbackURL: "/projects",
+    });
+    if (result.error) {
+      const error = translateAuthError(result.error);
+      form.setError("root.serverError", {
+        type: "server",
+        message: error ?? result.error.message,
+      });
+      return;
+    }
+  };
+
+  const handleGoogleLogIn = async () => {
+    const result = await authClient.signIn.social({
+      provider: "google",
+      callbackURL: "/projects",
+    });
+    if (result.error) {
+      const error = translateAuthError(result.error);
+      form.setError("root.serverError", {
+        type: "server",
+        message: error ?? result.error.message,
+      });
+      return;
+    }
   };
   return (
     <div>
@@ -238,6 +269,28 @@ export const RegisterForm = () => {
           >
             {form.formState.isSubmitting && <Spinner className="mr-2" />}
             Зарегистрироваться
+          </Button>
+
+          <Button
+            variant="outline"
+            type="button"
+            className="w-full"
+            onClick={handleGitHubLogIn}
+            disabled={form.formState.isSubmitting}
+          >
+            <SiGithub />
+            Продолжить с GitHub
+          </Button>
+
+          <Button
+            variant="outline"
+            type="button"
+            className="w-full"
+            onClick={handleGoogleLogIn}
+            disabled={form.formState.isSubmitting}
+          >
+            <SiGoogle />
+            Продолжить с Google
           </Button>
 
           <Text variant="muted" className="text-center">

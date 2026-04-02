@@ -94,31 +94,20 @@ export const ProjectsView: FC<ProjectsViewProps> = ({
         />
       ))}
       {!filteredProjects.length && (
-        <Empty>
+        <Empty className="mt-20">
           <EmptyHeader>
             <EmptyMedia variant="icon">
               <FolderX />
             </EmptyMedia>
-            <EmptyTitle>No Projects Yet</EmptyTitle>
+            <EmptyTitle>Ещё нет проектов</EmptyTitle>
             <EmptyDescription>
-              You haven&apos;t created any projects yet. Get started by creating
-              your first project.
+              Вы ещё не создали ни одного проекта. Начнём создание вашего
+              первого
             </EmptyDescription>
           </EmptyHeader>
           <EmptyContent className="flex-row justify-center gap-2">
-            <Button>Create Project</Button>
-            <Button variant="outline">Import Project</Button>
+            <Button onClick={handeCreateProject}>Создать проект</Button>
           </EmptyContent>
-          <Button
-            variant="link"
-            asChild
-            className="text-muted-foreground"
-            size="sm"
-          >
-            <a href="#">
-              Learn More <ArrowUpRightIcon />
-            </a>
-          </Button>
         </Empty>
       )}
 
