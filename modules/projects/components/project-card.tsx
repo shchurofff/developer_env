@@ -65,11 +65,11 @@ export const ProjectCard: FC<ProjectCardProps> = ({
   return (
     <Card
       className={cn(
-        "transition-opacity",
+        "hover:border-primary/35 transition-all",
         isPending && "pointer-events-none opacity-50"
       )}
     >
-      <CardHeader>
+      <CardHeader className="gap-4">
         <CardTitle className="flex items-center gap-4 pb-2">
           <ProjectAvatar
             name={project.name}
@@ -137,11 +137,17 @@ export const ProjectCard: FC<ProjectCardProps> = ({
           </Button>
         </CardAction>
       </CardHeader>
-      <CardContent className="flex items-center justify-between">
-        <Text>Задач закрыто: {project.tasksCount}</Text>
-        <ProjectStack stack={project.stack} />
+      <CardContent className="flex flex-col gap-4 border-t pt-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3">
+          <Text variant="muted">Задач закрыто: {project.tasksCount}</Text>
+          <ProjectStack stack={project.stack} />
+        </div>
 
-        <Badge data-icon="inline-start" variant={projectStatus.variant}>
+        <Badge
+          data-icon="inline-start"
+          variant={projectStatus.variant}
+          className="w-fit"
+        >
           <StatusIcon /> {projectStatus.label}
         </Badge>
       </CardContent>

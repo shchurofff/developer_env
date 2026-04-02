@@ -10,10 +10,9 @@ export default async function ProjectsPage() {
   const session = await requireSession();
   const data = await getProjects(session.user.id);
   const stack = await getTechnologyStack();
-  console.log(session);
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-6">
       <PageHero
         title="Проекты"
         subTitle="Заносите информацию о проектах, над которыми работали, фиксируйте

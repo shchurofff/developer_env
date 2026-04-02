@@ -57,10 +57,10 @@ export const HomeCardBlock: FC<HomeCardBlockProps> = ({ className, user }) => {
     router.refresh();
   };
   return (
-    <>
+    <div className="w-full space-y-8">
       <div
         className={cn(
-          "mx-auto grid max-w-5xl grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3",
+          "mx-auto grid w-full max-w-6xl grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3",
           className
         )}
       >
@@ -74,16 +74,24 @@ export const HomeCardBlock: FC<HomeCardBlockProps> = ({ className, user }) => {
           />
         ))}
       </div>
-      <div className="flex flex-col items-center gap-3">
+      <div className="bg-background/85 mx-auto flex max-w-xl flex-col items-center gap-3 border px-5 py-5 text-center shadow-sm supports-backdrop-filter:backdrop-blur-sm">
         {user ? (
           <>
-            <Text variant="muted">
-              Вы вошли как {user.name ?? "пользователь"}
-              {user.email ? ` (${user.email})` : ""}
+            <Text variant="muted" className="text-balance">
+              Вы уже вошли как {user.name ?? "пользователь"}
+              {user.email ? ` (${user.email})` : ""}.
             </Text>
+            <div>
+              <Button asChild>
+                <Link href="/projects">Продолжить</Link>
+              </Button>
+              {/*<Button variant="outline" asChild>
+                <Link href="/repository">Открыть хранилище</Link>
+              </Button>*/}
+            </div>
           </>
         ) : (
-          <div className="flex gap-2">
+          <div className="flex flex-col gap-3 sm:flex-row">
             <Button variant="outline" onClick={handleGuestStart}>
               Попробовать как гость
             </Button>
@@ -94,6 +102,6 @@ export const HomeCardBlock: FC<HomeCardBlockProps> = ({ className, user }) => {
           </div>
         )}
       </div>
-    </>
+    </div>
   );
 };

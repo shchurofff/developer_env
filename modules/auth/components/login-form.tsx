@@ -38,6 +38,7 @@ export const LoginForm = () => {
   });
 
   const onFormSubmit = async (values: LoginFormValues) => {
+    form.clearErrors("root.serverError");
     const result = await authClient.signIn.email({
       email: values.email,
       password: values.password,
@@ -58,6 +59,7 @@ export const LoginForm = () => {
   };
 
   const handleGuestStart = async () => {
+    form.clearErrors("root.serverError");
     const result = await authClient.signIn.anonymous();
     if (result.error) {
       console.error(result.error);
@@ -70,6 +72,7 @@ export const LoginForm = () => {
     router.refresh();
   };
   const handleGitHubLogIn = async () => {
+    form.clearErrors("root.serverError");
     const result = await authClient.signIn.social({
       provider: "github",
       callbackURL: "/projects",
@@ -84,6 +87,7 @@ export const LoginForm = () => {
     }
   };
   const handleGoogleLogIn = async () => {
+    form.clearErrors("root.serverError");
     const result = await authClient.signIn.social({
       provider: "google",
       callbackURL: "/projects",
@@ -98,7 +102,7 @@ export const LoginForm = () => {
     }
   };
   return (
-    <div>
+    <div className="space-y-6">
       <div className="mb-6 space-y-2">
         <Heading level="h2">С возвращением</Heading>
         <Text variant="muted">
@@ -187,7 +191,7 @@ export const LoginForm = () => {
           />
 
           {form.formState.errors.root?.serverError && (
-            <FieldError>
+            <FieldError className="border-destructive/20 bg-destructive/5 border px-3 py-2">
               {form.formState.errors.root.serverError.message}
             </FieldError>
           )}
@@ -201,6 +205,18 @@ export const LoginForm = () => {
             {form.formState.isSubmitting && <Spinner className="mr-2" />}
             Войти
           </Button>
+
+          <div className="relative py-1">
+            <div className="border-border absolute inset-x-0 top-1/2 border-t" />
+            <div className="bg-background relative mx-auto w-fit px-3">
+              <Text
+                variant="muted"
+                className="text-xs tracking-[0.18em] uppercase"
+              >
+                или через аккаунт
+              </Text>
+            </div>
+          </div>
 
           <Button
             variant="outline"
@@ -224,10 +240,6 @@ export const LoginForm = () => {
             Войти через Google
           </Button>
 
-          <Text variant="muted" className="text-center">
-            или
-          </Text>
-
           <Button
             variant="secondary"
             type="button"
@@ -237,7 +249,7 @@ export const LoginForm = () => {
             Войти как гость
           </Button>
 
-          <Text variant="muted" className="text-center">
+          <Text variant="muted" className="pt-1 text-center">
             Ещё нет аккаунта?
           </Text>
 

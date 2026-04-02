@@ -17,7 +17,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "#ui";
-import { ArrowUpRightIcon, FolderX } from "lucide-react";
+import { FolderX } from "lucide-react";
 import { Technology } from "@/generated/prisma/browser";
 
 interface ProjectsViewProps {
@@ -37,6 +37,10 @@ export const ProjectsView: FC<ProjectsViewProps> = ({
   const filteredProjects = initialProjects.filter((p) =>
     p.name.toLowerCase().includes(searchValue.toLowerCase())
   );
+  const activeProjectsCount = initialProjects.filter(
+    (project) => project.status === "WORKING_NOW"
+  ).length;
+  const finishedProjectsCount = initialProjects.length - activeProjectsCount;
 
   const handleDelete = async (id: string) => {
     const result = await deleteProject(id);
@@ -59,25 +63,25 @@ export const ProjectsView: FC<ProjectsViewProps> = ({
   };
 
   return (
-    <div className="space-y-4">
-      <div className="grid w-full grid-cols-3 gap-4">
+    <div className="space-y-5">
+      <div className="grid w-full grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
         <StatusCard
           title="Проектов"
-          content="Всего"
+          content="Всего в рабочем пространстве"
           dataCount={initialProjects.length}
         />
         <StatusCard
-          title="Задач "
-          content="Всего"
+          title="Задач"
+          content="Закреплено за проектами"
           dataCount={initialProjects.reduce(
             (acc, proj) => acc + proj.tasksCount,
             0
           )}
         />
         <StatusCard
-          title="Проектов"
-          content="Всего"
-          dataCount={initialProjects.length}
+          title="Статус"
+          content={`В работе: ${activeProjectsCount} • Завершено: ${finishedProjectsCount}`}
+          dataCount={activeProjectsCount}
         />
       </div>
       <ProjectsFilters
@@ -85,28 +89,41 @@ export const ProjectsView: FC<ProjectsViewProps> = ({
         setSeachValue={setSearchValue}
         onCreate={handeCreateProject}
       />
-      {filteredProjects.map((proj) => (
-        <ProjectCard
-          key={proj.id}
-          project={proj}
-          onDelete={handleDelete}
-          onEdit={handleEditProject}
-        />
-      ))}
+      {filteredProjects.length > 0 && (
+        <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+          {filteredProjects.map((proj) => (
+            <ProjectCard
+              key={proj.id}
+              project={proj}
+              onDelete={handleDelete}
+              onEdit={handleEditProject}
+            />
+          ))}
+        </div>
+      )}
       {!filteredProjects.length && (
         <Empty className="mt-20">
           <EmptyHeader>
             <EmptyMedia variant="icon">
               <FolderX />
             </EmptyMedia>
-            <EmptyTitle>Ещё нет проектов</EmptyTitle>
+            <EmptyTitle>
+              {searchValue ? "Ничего не найдено" : "Ещё нет проектов"}
+            </EmptyTitle>
             <EmptyDescription>
-              Вы ещё не создали ни одного проекта. Начнём создание вашего
-              первого
+              {searchValue
+                ? "Попробуйте изменить запрос или очистите поиск, чтобы увидеть все проекты."
+                : "Вы ещё не создали ни одного проекта. Начните с первого и постепенно соберите своё рабочее портфолио."}
             </EmptyDescription>
           </EmptyHeader>
           <EmptyContent className="flex-row justify-center gap-2">
-            <Button onClick={handeCreateProject}>Создать проект</Button>
+            {searchValue ? (
+              <Button variant="outline" onClick={() => setSearchValue("")}>
+                Сбросить поиск
+              </Button>
+            ) : (
+              <Button onClick={handeCreateProject}>Создать проект</Button>
+            )}
           </EmptyContent>
         </Empty>
       )}

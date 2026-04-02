@@ -20,7 +20,7 @@ export default async function LoginPage() {
         flickerChance={0.1}
       />
 
-      <div className="bg-background/95 relative z-10 w-full max-w-md border p-6 shadow-sm supports-backdrop-filter:backdrop-blur-sm">
+      <div className="bg-background/95 relative z-10 w-full max-w-md border p-6 shadow-lg supports-backdrop-filter:backdrop-blur-sm">
         <LoginForm />
       </div>
     </div>
