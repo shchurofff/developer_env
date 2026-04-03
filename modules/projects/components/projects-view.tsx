@@ -17,7 +17,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "#ui";
-import { ArrowUpRightIcon, FolderX } from "lucide-react";
+import { FolderX } from "lucide-react";
 import { Technology } from "@/generated/prisma/browser";
 
 interface ProjectsViewProps {
@@ -31,10 +31,16 @@ export const ProjectsView: FC<ProjectsViewProps> = ({
 }) => {
   const [searchValue, setSearchValue] = useState("");
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [editingProject, setEditingProject] =
+    useState<ProjectWithTaskCount | null>(null);
 
   const filteredProjects = initialProjects.filter((p) =>
     p.name.toLowerCase().includes(searchValue.toLowerCase())
   );
+  const activeProjectsCount = initialProjects.filter(
+    (project) => project.status === "WORKING_NOW"
+  ).length;
+  const finishedProjectsCount = initialProjects.length - activeProjectsCount;
 
   const handleDelete = async (id: string) => {
     const result = await deleteProject(id);
@@ -46,63 +52,79 @@ export const ProjectsView: FC<ProjectsViewProps> = ({
     toast.success("Проект успешно удалён");
   };
 
+  const handeCreateProject = () => {
+    setEditingProject(null);
+    setShowCreateModal(true);
+  };
+
+  const handleEditProject = (project: ProjectWithTaskCount) => {
+    setEditingProject(project);
+    setShowCreateModal(true);
+  };
+
   return (
-    <div className="space-y-4">
-      <div className="grid w-full grid-cols-3 gap-4">
+    <div className="space-y-5">
+      <div className="grid w-full grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
         <StatusCard
           title="Проектов"
-          content="Всего"
+          content="Всего в рабочем пространстве"
           dataCount={initialProjects.length}
         />
         <StatusCard
-          title="Задач "
-          content="Всего"
+          title="Задач"
+          content="Закреплено за проектами"
           dataCount={initialProjects.reduce(
             (acc, proj) => acc + proj.tasksCount,
             0
           )}
         />
         <StatusCard
-          title="Проектов"
-          content="Всего"
-          dataCount={initialProjects.length}
+          title="Статус"
+          content={`В работе: ${activeProjectsCount} • Завершено: ${finishedProjectsCount}`}
+          dataCount={activeProjectsCount}
         />
       </div>
       <ProjectsFilters
         searchValue={searchValue}
         setSeachValue={setSearchValue}
-        showModal={showCreateModal}
-        setShowModal={setShowCreateModal}
+        onCreate={handeCreateProject}
       />
-      {filteredProjects.map((proj) => (
-        <ProjectCard key={proj.id} project={proj} onDelete={handleDelete} />
-      ))}
+      {filteredProjects.length > 0 && (
+        <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+          {filteredProjects.map((proj) => (
+            <ProjectCard
+              key={proj.id}
+              project={proj}
+              onDelete={handleDelete}
+              onEdit={handleEditProject}
+            />
+          ))}
+        </div>
+      )}
       {!filteredProjects.length && (
-        <Empty>
+        <Empty className="mt-20">
           <EmptyHeader>
             <EmptyMedia variant="icon">
               <FolderX />
             </EmptyMedia>
-            <EmptyTitle>No Projects Yet</EmptyTitle>
+            <EmptyTitle>
+              {searchValue ? "Ничего не найдено" : "Ещё нет проектов"}
+            </EmptyTitle>
             <EmptyDescription>
-              You haven&apos;t created any projects yet. Get started by creating
-              your first project.
+              {searchValue
+                ? "Попробуйте изменить запрос или очистите поиск, чтобы увидеть все проекты."
+                : "Вы ещё не создали ни одного проекта. Начните с первого и постепенно соберите своё рабочее портфолио."}
             </EmptyDescription>
           </EmptyHeader>
           <EmptyContent className="flex-row justify-center gap-2">
-            <Button>Create Project</Button>
-            <Button variant="outline">Import Project</Button>
+            {searchValue ? (
+              <Button variant="outline" onClick={() => setSearchValue("")}>
+                Сбросить поиск
+              </Button>
+            ) : (
+              <Button onClick={handeCreateProject}>Создать проект</Button>
+            )}
           </EmptyContent>
-          <Button
-            variant="link"
-            asChild
-            className="text-muted-foreground"
-            size="sm"
-          >
-            <a href="#">
-              Learn More <ArrowUpRightIcon />
-            </a>
-          </Button>
         </Empty>
       )}
 
@@ -110,6 +132,7 @@ export const ProjectsView: FC<ProjectsViewProps> = ({
         isOpen={showCreateModal}
         stack={stack}
         onOpenChange={setShowCreateModal}
+        project={editingProject}
       />
     </div>
   );

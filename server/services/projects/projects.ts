@@ -1,8 +1,11 @@
 import { prisma } from "#server/db/db";
 import { Project } from "@/generated/prisma/client";
 
-export const getProjects = async () => {
+export const getProjects = async (userId: Project["userId"]) => {
   const projects = await prisma.project.findMany({
+    where: {
+      userId,
+    },
     include: {
       _count: {
         select: { tasks: true },
@@ -22,9 +25,12 @@ export const getProjects = async () => {
 
 export type ProjectWithTaskCount = Awaited<ReturnType<typeof getProjects>>[0];
 
-export const getProjectBySlug = async (slug: Project["slug"]) => {
-  const project = await prisma.project.findUnique({
-    where: { slug },
+export const getProjectBySlug = async (
+  slug: Project["slug"],
+  userId: Project["userId"]
+) => {
+  const project = await prisma.project.findFirst({
+    where: { slug, userId },
     include: {
       tasks: true,
       stack: true,

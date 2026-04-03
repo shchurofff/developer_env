@@ -23,7 +23,13 @@ import {
   Heading,
   Text,
 } from "#ui";
-import { CheckCheck, MoveRight, Trash2, Trash2Icon } from "lucide-react";
+import {
+  CheckCheck,
+  MoveRight,
+  PenBoxIcon,
+  Trash2,
+  Trash2Icon,
+} from "lucide-react";
 import Link from "next/link";
 import { FC, useTransition } from "react";
 import { STATUS_CONFIG } from "../utils";
@@ -32,15 +38,15 @@ import { cn } from "@/lib/utils";
 import { ProjectStack } from "./project-stack";
 
 interface ProjectCardProps {
-  favicon?: string;
   project: ProjectWithTaskCount;
   onDelete: (id: string) => Promise<void>;
+  onEdit: (project: ProjectWithTaskCount) => void;
 }
 
 export const ProjectCard: FC<ProjectCardProps> = ({
-  favicon,
   project,
   onDelete,
+  onEdit,
 }) => {
   const [isPending, startTransition] = useTransition();
 
@@ -59,21 +65,35 @@ export const ProjectCard: FC<ProjectCardProps> = ({
   return (
     <Card
       className={cn(
-        "transition-opacity",
+        "hover:border-primary/35 transition-all",
         isPending && "pointer-events-none opacity-50"
       )}
     >
-      <CardHeader>
+      <CardHeader className="gap-4">
         <CardTitle className="flex items-center gap-4 pb-2">
-          <ProjectAvatar name={project.name} image={favicon} />
+          <ProjectAvatar
+            name={project.name}
+            image={project.favicon || undefined}
+          />
           <Heading className="flex-1" level={"h3"}>
             {project.name}
           </Heading>
         </CardTitle>
-        <CardDescription>
-          <Text variant={"muted"}>{project.description}</Text>
+        <CardDescription className="w-full min-w-0">
+          <Text variant={"muted"} className="line-clamp-2 wrap-break-word">
+            {project.description}
+          </Text>
         </CardDescription>
         <CardAction>
+          <Button
+            variant={"ghost"}
+            size={"icon-lg"}
+            className="cursor-pointer opacity-50 hover:opacity-100"
+            onClick={() => onEdit(project)}
+          >
+            <PenBoxIcon />
+          </Button>
+
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button
@@ -117,11 +137,17 @@ export const ProjectCard: FC<ProjectCardProps> = ({
           </Button>
         </CardAction>
       </CardHeader>
-      <CardContent className="flex items-center justify-between">
-        <Text>Задач закрыто: {project.tasksCount}</Text>
-        <ProjectStack stack={project.stack} />
+      <CardContent className="flex flex-col gap-4 border-t pt-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3">
+          <Text variant="muted">Задач закрыто: {project.tasksCount}</Text>
+          <ProjectStack stack={project.stack} />
+        </div>
 
-        <Badge data-icon="inline-start" variant={projectStatus.variant}>
+        <Badge
+          data-icon="inline-start"
+          variant={projectStatus.variant}
+          className="w-fit"
+        >
           <StatusIcon /> {projectStatus.label}
         </Badge>
       </CardContent>

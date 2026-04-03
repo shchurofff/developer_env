@@ -157,3 +157,5 @@ export {
   MultiSelectTrigger,
   MultiSelectValue,
 } from "./multi-select";
+export { Calendar, CalendarDayButton } from "./calendar";
+export { DatePickerSimple } from "./date-picker";

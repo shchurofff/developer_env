@@ -5,21 +5,19 @@ import { Dispatch, FC, SetStateAction } from "react";
 interface ProjectsFiltersProps {
   searchValue: string;
   setSeachValue: Dispatch<SetStateAction<string>>;
-  showModal: boolean;
-  setShowModal: Dispatch<SetStateAction<boolean>>;
+  onCreate: () => void;
 }
 
 export const ProjectsFilters: FC<ProjectsFiltersProps> = ({
   searchValue,
   setSeachValue,
-  setShowModal,
-  showModal,
+  onCreate,
 }) => {
   return (
-    <div className="flex w-full gap-4">
+    <div className="bg-background/80 flex w-full flex-col gap-3 border p-3 sm:flex-row sm:items-center">
       <InputGroup className="w-full">
         <InputGroupInput
-          placeholder="Введите название проекта"
+          placeholder="Найти проект по названию"
           value={searchValue}
           onChange={(event) => setSeachValue(event.target.value)}
         />
@@ -28,7 +26,7 @@ export const ProjectsFilters: FC<ProjectsFiltersProps> = ({
         </InputGroupAddon>
       </InputGroup>
 
-      <Button onClick={() => setShowModal(!showModal)}>
+      <Button onClick={() => onCreate()} className="sm:shrink-0">
         <Plus /> Добавить проект
       </Button>
     </div>
