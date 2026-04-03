@@ -4,15 +4,15 @@ import {
   getTechnologyStack,
 } from "#server/services/projects/index";
 import { PageHero } from "#ui";
+import { requireSession } from "@/lib/auth";
 
 export default async function ProjectsPage() {
-  const data = await getProjects();
+  const session = await requireSession();
+  const data = await getProjects(session.user.id);
   const stack = await getTechnologyStack();
-  console.log(data);
-  console.log(stack);
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-6">
       <PageHero
         title="Проекты"
         subTitle="Заносите информацию о проектах, над которыми работали, фиксируйте

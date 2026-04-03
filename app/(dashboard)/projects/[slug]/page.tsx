@@ -3,6 +3,7 @@ import { getProjectBySlug } from "#server/services/projects";
 import { Heading, Text } from "#ui";
 import { notFound } from "next/navigation";
 import { normalizeDate } from "@/lib/date-normalize";
+import { requireSession } from "@/lib/auth";
 
 interface ProjectPageProps {
   params: Promise<{
@@ -11,8 +12,10 @@ interface ProjectPageProps {
 }
 
 export default async function ProjectPage({ params }: ProjectPageProps) {
+  const session = await requireSession();
+
   const { slug } = await params;
-  const project = await getProjectBySlug(slug);
+  const project = await getProjectBySlug(slug, session.user.id);
   console.log(project);
 
   if (!project) {

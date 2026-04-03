@@ -21,16 +21,17 @@ export const StatusCard: FC<StatusCardProps> = ({
 }) => {
   return (
     <Card size="sm">
-      <CardHeader>
+      <CardHeader className="space-y-1">
         <CardTitle>
-          <Text variant={"large"}>{title}</Text>
+          <Text variant={"muted"}>{title}</Text>
         </CardTitle>
         <CardDescription />
       </CardHeader>
-      <CardContent>
-        <Text variant={"muted"}>
-          {content}:{dataCount}
+      <CardContent className="space-y-1">
+        <Text variant={"large"} className="text-2xl font-semibold">
+          {dataCount}
         </Text>
+        <Text variant={"muted"}>{content}</Text>
       </CardContent>
     </Card>
   );
