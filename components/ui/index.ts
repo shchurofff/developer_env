@@ -159,3 +159,13 @@ export {
 } from "./multi-select";
 export { Calendar, CalendarDayButton } from "./calendar";
 export { DatePickerSimple } from "./date-picker";
+export {
+  Table,
+  TableHeader,
+  TableBody,
+  TableFooter,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableCaption,
+} from "./table";

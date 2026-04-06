@@ -32,7 +32,25 @@ export const getProjectBySlug = async (
   const project = await prisma.project.findFirst({
     where: { slug, userId },
     include: {
-      tasks: true,
+      tasks: {
+        include: {
+          comments: {
+            take: 1,
+            orderBy: {
+              createdAt: "asc",
+            },
+          },
+          _count: {
+            select: {
+              comments: true,
+              timeEntries: true,
+            },
+          },
+        },
+        orderBy: {
+          startDay: "desc",
+        },
+      },
       stack: true,
     },
   });
@@ -43,3 +61,7 @@ export const getProjectBySlug = async (
 
   return project;
 };
+
+export type ProjectDetails = NonNullable<
+  Awaited<ReturnType<typeof getProjectBySlug>>
+>;
