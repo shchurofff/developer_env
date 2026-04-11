@@ -69,12 +69,9 @@ const projectsData: Prisma.ProjectCreateInput[] = [
       create: [
         {
           name: "Ознакомиться со структурой проекта",
+          description:
+            "Разобраться со структурой приложения, основными страницами и текущей архитектурой проекта.",
           status: "DONE",
-          comments: {
-            create: {
-              content: "Смотрел доку next",
-            },
-          },
           timeEntries: {
             create: [
               {
@@ -128,10 +125,9 @@ const projectsData: Prisma.ProjectCreateInput[] = [
       create: [
         {
           name: "Внедрение useTransition для удаления",
+          description:
+            "Перенести удаление проекта на более отзывчивое клиентское поведение через локальный transition.",
           status: "DONE",
-          comments: {
-            create: { content: "Сделал через локальный transition в карточке" },
-          },
           timeEntries: {
             create: {
               duration: 45,
@@ -142,6 +138,8 @@ const projectsData: Prisma.ProjectCreateInput[] = [
         },
         {
           name: "Настройка страницы проекта",
+          description:
+            "Собрать рабочую страницу проекта с таблицей задач, быстрым поиском и местом под дальнейший тайм-трекинг.",
           status: "IN_PROGRESS",
           timeEntries: {
             create: {

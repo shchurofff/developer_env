@@ -8,7 +8,9 @@ import slugify from "slugify";
 import { parseFormData } from "#mod/projects/utils";
 import { requireSession } from "@/lib/auth";
 
-type ActionResult = { success: true } | { success: false; error: string };
+export type ActionResult =
+  | { success: true }
+  | { success: false; error: string };
 
 export async function createProject(formData: FormData): Promise<ActionResult> {
   const session = await requireSession();

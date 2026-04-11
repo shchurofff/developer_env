@@ -34,15 +34,8 @@ export const getProjectBySlug = async (
     include: {
       tasks: {
         include: {
-          comments: {
-            take: 1,
-            orderBy: {
-              createdAt: "asc",
-            },
-          },
           _count: {
             select: {
-              comments: true,
               timeEntries: true,
             },
           },
