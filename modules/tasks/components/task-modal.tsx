@@ -20,6 +20,11 @@ import {
   InputGroupInput,
   InputGroupText,
   InputGroupTextarea,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   Spinner,
 } from "#ui";
 import { FC } from "react";
@@ -29,6 +34,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { createTask } from "#server/actions/tasks";
 import { toast } from "sonner";
 import { XIcon } from "lucide-react";
+import { TASK_STATUS_CONFIG } from "../utils";
 
 interface TaskModalProps {
   isOpen: boolean;
@@ -52,6 +58,8 @@ export const TaskModal: FC<TaskModalProps> = ({
       status: "IN_PROGRESS",
     },
   });
+
+  const taskStatusOptions = Object.entries(TASK_STATUS_CONFIG);
 
   const onFormSubmit = async (data: TaskFormValues) => {
     form.clearErrors("root.serverError");
@@ -179,6 +187,37 @@ export const TaskModal: FC<TaskModalProps> = ({
                       </InputGroupText>
                     </InputGroupAddon>
                   </InputGroup>
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+
+            <Controller
+              control={form.control}
+              name="status"
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="task-status">Статус задачи</FieldLabel>
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger
+                      id="task-status"
+                      aria-invalid={fieldState.invalid}
+                      className="w-xs"
+                    >
+                      <SelectValue placeholder="В работе" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {/*<SelectItem value="WORKING_NOW">В работе</SelectItem>
+                      <SelectItem value="WORKED">Завершён</SelectItem>*/}
+                      {taskStatusOptions.map(([value, config]) => (
+                        <SelectItem key={value} value={value}>
+                          {config.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   {fieldState.invalid && (
                     <FieldError errors={[fieldState.error]} />
                   )}
