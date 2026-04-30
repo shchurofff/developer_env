@@ -34,6 +34,7 @@ import { STATUS_CONFIG } from "../utils";
 import { TaskModal, TasksTable } from "#mod/tasks/components";
 import { deleteTask } from "#server/actions/tasks";
 import { toast } from "sonner";
+import { Task } from "#mod/tasks/types";
 
 interface ProjectDetailsViewProps {
   project: ProjectDetails;
@@ -44,6 +45,7 @@ export const ProjectDetailsView = ({ project }: ProjectDetailsViewProps) => {
   const deferredSearch = useDeferredValue(searchValue);
 
   const [showTaskModal, setShowTaskModal] = useState(false);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
 
   const activeProjectStatus = STATUS_CONFIG[project.status];
 
@@ -63,6 +65,7 @@ export const ProjectDetailsView = ({ project }: ProjectDetailsViewProps) => {
   });
 
   const handleCreateTask = () => {
+    setEditingTask(null);
     setShowTaskModal(true);
   };
 
@@ -74,6 +77,11 @@ export const ProjectDetailsView = ({ project }: ProjectDetailsViewProps) => {
       return result.error;
     }
     toast.success("Задача успешно удалена");
+  };
+
+  const handleEditTask = (task: Task) => {
+    setEditingTask(task);
+    setShowTaskModal(true);
   };
 
   return (
@@ -116,71 +124,6 @@ export const ProjectDetailsView = ({ project }: ProjectDetailsViewProps) => {
             </div>
           </div>
         </CardHeader>
-
-        <CardContent className="space-y-5">
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-            {/*<Card size="sm">
-              <CardHeader className="space-y-1">
-                <CardTitle>
-                  <Text variant="muted">Период работы</Text>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-1">
-                <Text variant="large" className="text-xl font-semibold">
-                  {project.endDay ? "Завершён" : "Активный"}
-                </Text>
-                <Text variant="muted">
-                  С {normalizeDate(project.startDay)}
-                  {project.endDay ? ` по ${normalizeDate(project.endDay)}` : ""}
-                </Text>
-              </CardContent>
-            </Card>
-
-            <Card size="sm">
-              <CardHeader className="space-y-1">
-                <CardTitle>
-                  <Text variant="muted">Прогресс по задачам</Text>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-1">
-                <Text variant="large" className="text-xl font-semibold">
-                  {doneTasks}/{totalTasks || 0}
-                </Text>
-                <Text variant="muted">Готово к текущему моменту</Text>
-              </CardContent>
-            </Card>
-
-            <Card size="sm">
-              <CardHeader className="space-y-1">
-                <CardTitle>
-                  <Text variant="muted">Фокус в работе</Text>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-1">
-                <Text variant="large" className="text-xl font-semibold">
-                  {inProgressTasks}
-                </Text>
-                <Text variant="muted">
-                  Активных, отложено: {postponedTasks}
-                </Text>
-              </CardContent>
-            </Card>
-
-            <Card size="sm">
-              <CardHeader className="space-y-1">
-                <CardTitle>
-                  <Text variant="muted">Технологии</Text>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <Text variant="large" className="text-xl font-semibold">
-                  {project.stack.length}
-                </Text>
-                <ProjectStack stack={project.stack} />
-              </CardContent>
-            </Card>*/}
-          </div>
-        </CardContent>
       </Card>
 
       <Card className="bg-background/90 border">
@@ -220,7 +163,11 @@ export const ProjectDetailsView = ({ project }: ProjectDetailsViewProps) => {
 
         <CardContent>
           {filteredTasks.length > 0 ? (
-            <TasksTable tasks={filteredTasks} onDelete={handleDeleteTask} />
+            <TasksTable
+              tasks={filteredTasks}
+              onDelete={handleDeleteTask}
+              onEdit={handleEditTask}
+            />
           ) : (
             <Empty className="py-12">
               <EmptyHeader>
@@ -252,6 +199,7 @@ export const ProjectDetailsView = ({ project }: ProjectDetailsViewProps) => {
       {showTaskModal && (
         <TaskModal
           projectId={project.id}
+          task={editingTask}
           isOpen={showTaskModal}
           onOpenChange={setShowTaskModal}
         />

@@ -27,54 +27,72 @@ import {
   SelectValue,
   Spinner,
 } from "#ui";
-import { FC } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { FC, useEffect } from "react";
+import { Controller, DefaultValues, useForm } from "react-hook-form";
 import { TaskFormValues, taskSchema } from "../schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createTask } from "#server/actions/tasks";
+import { createTask, updateTask } from "#server/actions/tasks";
 import { toast } from "sonner";
 import { XIcon } from "lucide-react";
 import { TASK_STATUS_CONFIG } from "../utils";
+import { Task } from "../types";
 
 interface TaskModalProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   projectId: string;
+  task?: Task | null;
 }
+
+const getDefaultFormValues = (
+  projectId: string,
+  task?: Task | null
+): DefaultValues<TaskFormValues> => ({
+  name: task?.name ?? "",
+  description: task?.description ?? "",
+  projectId: task?.projectId ?? projectId,
+  startDay: task?.startDay ?? new Date(),
+  endDay: task?.endDay ?? undefined,
+  status: task?.status ?? "IN_PROGRESS",
+});
 
 export const TaskModal: FC<TaskModalProps> = ({
   isOpen,
   onOpenChange,
   projectId,
+  task,
 }) => {
+  const isEdit = !!task;
   const form = useForm<TaskFormValues>({
     resolver: zodResolver(taskSchema),
-    defaultValues: {
-      name: "",
-      description: "",
-      projectId: projectId,
-      startDay: new Date(),
-      endDay: undefined,
-      status: "IN_PROGRESS",
-    },
+    // defaultValues: {
+    //   name: "",
+    //   description: "",
+    //   projectId: projectId,
+    //   startDay: new Date(),
+    //   endDay: undefined,
+    //   status: "IN_PROGRESS",
+    // },
+    defaultValues: getDefaultFormValues(projectId, task),
   });
+
+  useEffect(() => {
+    form.reset(getDefaultFormValues(projectId, task));
+  }, [form, projectId, task, isOpen]);
 
   const taskStatusOptions = Object.entries(TASK_STATUS_CONFIG);
 
   const onFormSubmit = async (data: TaskFormValues) => {
     form.clearErrors("root.serverError");
-    const result = await createTask(data);
+    const result = isEdit
+      ? await updateTask(task.id, data)
+      : await createTask(data);
 
     if (result.success) {
-      toast.success("Задача успешно создана");
-      form.reset({
-        name: "",
-        description: "",
-        projectId,
-        startDay: new Date(),
-        endDay: undefined,
-        status: "IN_PROGRESS",
-      });
+      toast.success(
+        isEdit ? "Задача успешно обновлена" : "Задача успешно создана"
+      );
+      form.reset(getDefaultFormValues(projectId, null));
       onOpenChange(false);
       return;
     }
@@ -83,14 +101,18 @@ export const TaskModal: FC<TaskModalProps> = ({
       type: "server",
       message:
         result.error ??
-        "Произошла ошибка при создании задачи, попробуйте повторно",
+        (isEdit
+          ? "Произошла ошибка при обновлении задачи, попробуйте повторно"
+          : "Произошла ошибка при создании задачи, попробуйте повторно"),
     });
   };
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[65vh] max-w-xl">
         <DialogHeader>
-          <DialogTitle>Новая задача</DialogTitle>
+          <DialogTitle>
+            {isEdit ? "Редактирование задачи" : "Новая задача"}
+          </DialogTitle>
           <DialogDescription>
             Запишите основные данные о задачи, чтобы вы могли фиксировать далее
             свои успехи и достижения в её выполнении
@@ -237,7 +259,7 @@ export const TaskModal: FC<TaskModalProps> = ({
             <Button
               type="button"
               variant="outline"
-              onClick={() => form.reset()}
+              onClick={() => form.reset(getDefaultFormValues(projectId, task))}
             >
               Отменить
             </Button>
@@ -248,7 +270,7 @@ export const TaskModal: FC<TaskModalProps> = ({
             disabled={form.formState.isSubmitting}
           >
             {form.formState.isSubmitting && <Spinner className="mr-2" />}
-            {/*{isEdit ? "Сохранить изменения" : "Сохранить"}*/} Сохранить
+            {isEdit ? "Сохранить изменения" : "Сохранить"}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -28,9 +28,14 @@ import Link from "next/link";
 interface TasksTableProps {
   tasks: Task[];
   onDelete: (id: string) => Promise<string | undefined>;
+  onEdit: (task: Task) => void;
 }
 
-export const TasksTable: FC<TasksTableProps> = ({ tasks, onDelete }) => {
+export const TasksTable: FC<TasksTableProps> = ({
+  tasks,
+  onDelete,
+  onEdit,
+}) => {
   const [isPending, startTransition] = useTransition();
   const [pendingTaskId, setPendingTaskId] = useState<string | null>(null);
 
@@ -99,7 +104,11 @@ export const TasksTable: FC<TasksTableProps> = ({ tasks, onDelete }) => {
             <PlusIcon />
           </Button>
 
-          <Button variant={"ghost"} size={"icon-lg"}>
+          <Button
+            variant={"ghost"}
+            size={"icon-lg"}
+            onClick={() => onEdit(row)}
+          >
             <PenBoxIcon />
           </Button>
 
