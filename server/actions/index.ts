@@ -4,4 +4,4 @@ export {
   updateProject,
   type ActionResult,
 } from "./projects";
-export { createTask } from "./tasks";
+export { createTask, deleteTask, updateTask, createTimeEntry } from "./tasks";
