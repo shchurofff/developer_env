@@ -169,3 +169,13 @@ export {
   TableCell,
   TableCaption,
 } from "./table";
+export {
+  Breadcrumb,
+  BreadcrumbEllipsis,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+  BreadcrumbNavigation,
+  type BreadcrumbItem,
+} from "./breadcrumb";
