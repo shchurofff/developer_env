@@ -31,7 +31,7 @@ import {
 import { normalizeDate } from "@/lib/date-normalize";
 import { ProjectAvatar } from "./project-avatar";
 import { STATUS_CONFIG } from "../utils";
-import { TaskModal, TasksTable } from "#mod/tasks/components";
+import { TaskModal, TasksTable, TimeEntryModal } from "#mod/tasks/components";
 import { deleteTask } from "#server/actions/tasks";
 import { toast } from "sonner";
 import { Task } from "#mod/tasks/types";
@@ -46,6 +46,9 @@ export const ProjectDetailsView = ({ project }: ProjectDetailsViewProps) => {
 
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
+
+  const [showTimeEntryModal, setShowTimeEntryModal] = useState(false);
+  const [selectedTaskId, setSelectedTaskId] = useState<Task["id"] | null>(null);
 
   const activeProjectStatus = STATUS_CONFIG[project.status];
 
@@ -82,6 +85,11 @@ export const ProjectDetailsView = ({ project }: ProjectDetailsViewProps) => {
   const handleEditTask = (task: Task) => {
     setEditingTask(task);
     setShowTaskModal(true);
+  };
+
+  const handleAddTimeEntry = (taskId: Task["id"]) => {
+    setSelectedTaskId(taskId);
+    setShowTimeEntryModal(true);
   };
 
   return (
@@ -167,6 +175,7 @@ export const ProjectDetailsView = ({ project }: ProjectDetailsViewProps) => {
               tasks={filteredTasks}
               onDelete={handleDeleteTask}
               onEdit={handleEditTask}
+              addTimeEntry={handleAddTimeEntry}
             />
           ) : (
             <Empty className="py-12">
@@ -202,6 +211,13 @@ export const ProjectDetailsView = ({ project }: ProjectDetailsViewProps) => {
           task={editingTask}
           isOpen={showTaskModal}
           onOpenChange={setShowTaskModal}
+        />
+      )}
+      {showTimeEntryModal && selectedTaskId && (
+        <TimeEntryModal
+          isOpen={showTimeEntryModal}
+          onOpenChange={setShowTimeEntryModal}
+          taskId={selectedTaskId}
         />
       )}
     </div>

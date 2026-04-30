@@ -29,12 +29,14 @@ interface TasksTableProps {
   tasks: Task[];
   onDelete: (id: string) => Promise<string | undefined>;
   onEdit: (task: Task) => void;
+  addTimeEntry: (id: Task["id"]) => void;
 }
 
 export const TasksTable: FC<TasksTableProps> = ({
   tasks,
   onDelete,
   onEdit,
+  addTimeEntry,
 }) => {
   const [isPending, startTransition] = useTransition();
   const [pendingTaskId, setPendingTaskId] = useState<string | null>(null);
@@ -90,17 +92,23 @@ export const TasksTable: FC<TasksTableProps> = ({
         );
       },
     },
-    // {
-    //   key: "timeEntries",
-    //   header: "Записи времени",
-    //   render: (row) => <Text>{row._count.timeEntries}</Text>,
-    // },
+    {
+      key: "timeEntries",
+      header: "Записи времени",
+      render: (row) => (
+        <Text className="text-center">{row._count.timeEntries}</Text>
+      ),
+    },
     {
       key: "actions",
       header: "",
       render: (row) => (
         <div className="flex gap-2">
-          <Button variant={"ghost"} size={"icon-lg"}>
+          <Button
+            variant={"ghost"}
+            size={"icon-lg"}
+            onClick={() => addTimeEntry(row.id)}
+          >
             <PlusIcon />
           </Button>
 
