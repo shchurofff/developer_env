@@ -32,6 +32,8 @@ import { normalizeDate } from "@/lib/date-normalize";
 import { ProjectAvatar } from "./project-avatar";
 import { STATUS_CONFIG } from "../utils";
 import { TaskModal, TasksTable } from "#mod/tasks/components";
+import { deleteTask } from "#server/actions/tasks";
+import { toast } from "sonner";
 
 interface ProjectDetailsViewProps {
   project: ProjectDetails;
@@ -62,6 +64,16 @@ export const ProjectDetailsView = ({ project }: ProjectDetailsViewProps) => {
 
   const handleCreateTask = () => {
     setShowTaskModal(true);
+  };
+
+  const handleDeleteTask = async (taskId: string) => {
+    const result = await deleteTask(taskId);
+
+    if (!result.success) {
+      toast.error(result.error);
+      return result.error;
+    }
+    toast.success("Задача успешно удалена");
   };
 
   return (
@@ -208,7 +220,7 @@ export const ProjectDetailsView = ({ project }: ProjectDetailsViewProps) => {
 
         <CardContent>
           {filteredTasks.length > 0 ? (
-            <TasksTable tasks={filteredTasks} />
+            <TasksTable tasks={filteredTasks} onDelete={handleDeleteTask} />
           ) : (
             <Empty className="py-12">
               <EmptyHeader>

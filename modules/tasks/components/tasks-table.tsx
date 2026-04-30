@@ -1,10 +1,15 @@
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
   Badge,
   Button,
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
   Table,
   TableBody,
   TableCell,
@@ -13,23 +18,33 @@ import {
   TableRow,
   Text,
 } from "#ui";
-import { FC } from "react";
+import { FC, useState, useTransition } from "react";
 import { Task, TaskTableColumn } from "#mod/tasks/types";
 import { TASK_STATUS_CONFIG } from "#mod/tasks/utils";
-import {
-  EllipsisVerticalIcon,
-  GhostIcon,
-  PenBoxIcon,
-  PlusIcon,
-  Trash2Icon,
-} from "lucide-react";
+import { PenBoxIcon, PlusIcon, Trash2Icon } from "lucide-react";
 import { normalizeDate } from "@/lib/date-normalize";
+import Link from "next/link";
 
 interface TasksTableProps {
   tasks: Task[];
+  onDelete: (id: string) => Promise<string | undefined>;
 }
 
-export const TasksTable: FC<TasksTableProps> = ({ tasks }) => {
+export const TasksTable: FC<TasksTableProps> = ({ tasks, onDelete }) => {
+  const [isPending, startTransition] = useTransition();
+  const [pendingTaskId, setPendingTaskId] = useState<string | null>(null);
+
+  const handleDeleteTask = (taskId: string) => {
+    setPendingTaskId(taskId);
+    startTransition(async () => {
+      const error = await onDelete(taskId);
+
+      if (error) {
+        setPendingTaskId(null);
+      }
+    });
+  };
+
   const columns: TaskTableColumn[] = [
     {
       key: "startDay",
@@ -39,7 +54,11 @@ export const TasksTable: FC<TasksTableProps> = ({ tasks }) => {
     {
       key: "name",
       header: "Название",
-      render: (row) => <Text>{row.name}</Text>,
+      render: (row) => (
+        <Link className="underline underline-offset-4" href={`tasks/${row.id}`}>
+          {row.name}
+        </Link>
+      ),
     },
     {
       key: "description",
@@ -74,33 +93,47 @@ export const TasksTable: FC<TasksTableProps> = ({ tasks }) => {
     {
       key: "actions",
       header: "",
-      render: () => (
+      render: (row) => (
         <div className="flex gap-2">
           <Button variant={"ghost"} size={"icon-lg"}>
             <PlusIcon />
           </Button>
 
           <Button variant={"ghost"} size={"icon-lg"}>
-            <GhostIcon />
+            <PenBoxIcon />
           </Button>
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button size={"icon-lg"} variant="ghost">
-                <EllipsisVerticalIcon />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuItem>
-                <PenBoxIcon />
-                Редактировать
-              </DropdownMenuItem>
-              <DropdownMenuItem>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                variant={"ghost"}
+                size={"icon-lg"}
+                className="cursor-pointer opacity-50 hover:opacity-100"
+              >
                 <Trash2Icon />
-                Удалить
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent size="sm">
+              <AlertDialogHeader>
+                <AlertDialogTitle>Вы точно уверены?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Действие нельзя будет отменить. Вы точно хотите удалить задачу
+                  и все записи в ней?
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel variant={"default"}>
+                  Отменить
+                </AlertDialogCancel>
+                <AlertDialogAction
+                  variant={"destructive"}
+                  onClick={() => handleDeleteTask(row.id)}
+                >
+                  Удалить
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       ),
     },
@@ -117,15 +150,25 @@ export const TasksTable: FC<TasksTableProps> = ({ tasks }) => {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {tasks.map((task) => (
-          <TableRow key={task.id} id={task.id}>
-            {columns.map((column) => (
-              <TableCell key={column.key} className={column.className}>
-                {column.render(task)}
-              </TableCell>
-            ))}
-          </TableRow>
-        ))}
+        {tasks.map((task) => {
+          const isRowPending = isPending && pendingTaskId === task.id;
+
+          return (
+            <TableRow
+              key={task.id}
+              id={task.id}
+              className={
+                isRowPending ? "pointer-events-none opacity-50" : undefined
+              }
+            >
+              {columns.map((column) => (
+                <TableCell key={column.key} className={column.className}>
+                  {column.render(task)}
+                </TableCell>
+              ))}
+            </TableRow>
+          );
+        })}
       </TableBody>
     </Table>
   );
