@@ -11,14 +11,16 @@ export const getProjects = async (userId: Project["userId"]) => {
         select: { tasks: true },
       },
       stack: true,
+      links: true,
     },
     orderBy: {
       startDay: "desc",
     },
   });
-  return projects.map(({ _count, stack, ...project }) => ({
+  return projects.map(({ _count, stack, links, ...project }) => ({
     ...project,
     stack,
+    links,
     tasksCount: _count.tasks,
   }));
 };
@@ -32,8 +34,20 @@ export const getProjectBySlug = async (
   const project = await prisma.project.findFirst({
     where: { slug, userId },
     include: {
-      tasks: true,
+      tasks: {
+        include: {
+          _count: {
+            select: {
+              timeEntries: true,
+            },
+          },
+        },
+        orderBy: {
+          startDay: "desc",
+        },
+      },
       stack: true,
+      links: true,
     },
   });
 
@@ -43,3 +57,7 @@ export const getProjectBySlug = async (
 
   return project;
 };
+
+export type ProjectDetails = NonNullable<
+  Awaited<ReturnType<typeof getProjectBySlug>>
+>;

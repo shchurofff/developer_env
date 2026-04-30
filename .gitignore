@@ -47,3 +47,4 @@ dev.db
 prisma/migrations/*.sql
 
 /generated/prisma
+AGENTS.md
