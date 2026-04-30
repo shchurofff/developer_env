@@ -11,14 +11,16 @@ export const getProjects = async (userId: Project["userId"]) => {
         select: { tasks: true },
       },
       stack: true,
+      links: true,
     },
     orderBy: {
       startDay: "desc",
     },
   });
-  return projects.map(({ _count, stack, ...project }) => ({
+  return projects.map(({ _count, stack, links, ...project }) => ({
     ...project,
     stack,
+    links,
     tasksCount: _count.tasks,
   }));
 };
@@ -45,6 +47,7 @@ export const getProjectBySlug = async (
         },
       },
       stack: true,
+      links: true,
     },
   });
 

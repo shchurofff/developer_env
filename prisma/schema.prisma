@@ -22,12 +22,22 @@ model Project {
   status      ProjectStatus @default(WORKING_NOW)
   favicon     String?
 
+  links ProjectLink[]
+
   tasks Task[]
   stack Technology[]
 
   userId String
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model ProjectLink {
+  id        String   @id @default(cuid())
+  url       String
+  title     String
+  projectId String?
+  project   Project? @relation(fields: [projectId], references: [id])
 }
 
 model Technology {
