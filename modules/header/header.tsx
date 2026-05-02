@@ -1,21 +1,12 @@
 "use client";
 
-import {
-  Badge,
-  Button,
-  Separator,
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "#ui";
+import { Badge, Separator } from "#ui";
 import { authClient, CurrentUser } from "@/lib/auth";
 import { ModeToggle } from "../../components/mode-toggle";
 import { HeaderLogo } from "./header-logo";
 import { HeaderNavigation } from "./header-navigation";
-import { LogOutIcon } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { User } from "@/generated/prisma/client";
 import { FC } from "react";
 import { AnonymousLogOutButton } from "./anonymous-logout-button";
 import { LogOutButton } from "./logout-button";
