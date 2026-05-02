@@ -7,8 +7,11 @@ import { put } from "@vercel/blob";
 import slugify from "slugify";
 import { parseFormData } from "#mod/projects/utils";
 import { requireSession } from "@/lib/auth";
+import { getOwnedProject } from "#server/lib/ownership";
 
-type ActionResult = { success: true } | { success: false; error: string };
+export type ActionResult =
+  | { success: true }
+  | { success: false; error: string };
 
 export async function createProject(formData: FormData): Promise<ActionResult> {
   const session = await requireSession();
@@ -67,12 +70,7 @@ export async function updateProject(
 ): Promise<ActionResult> {
   const authData = await requireSession();
   try {
-    const existingProject = await prisma.project.findFirst({
-      where: {
-        id,
-        userId: authData.user.id,
-      },
-    });
+    const existingProject = await getOwnedProject(id, authData.user.id);
 
     if (!existingProject) {
       return {
@@ -113,7 +111,7 @@ export async function updateProject(
       },
     });
 
-    revalidatePath(`/projects/${id}`);
+    revalidatePath(`/projects/${existingProject.slug}`);
     revalidatePath("/projects");
     revalidatePath("/");
     return { success: true };
@@ -126,13 +124,7 @@ export async function updateProject(
 export async function deleteProject(id: string): Promise<ActionResult> {
   const authData = await requireSession();
   try {
-    const existingProject = await prisma.project.findFirst({
-      where: {
-        id,
-        userId: authData.user.id,
-      },
-      select: { id: true },
-    });
+    const existingProject = await getOwnedProject(id, authData.user.id);
 
     if (!existingProject) {
       return {
@@ -146,6 +138,7 @@ export async function deleteProject(id: string): Promise<ActionResult> {
     });
 
     revalidatePath("/");
+    revalidatePath("/projects");
     return { success: true };
   } catch (error) {
     console.error("Delete Project Error:", error);
