@@ -176,6 +176,7 @@ export const ProjectDetailsView = ({ project }: ProjectDetailsViewProps) => {
               onDelete={handleDeleteTask}
               onEdit={handleEditTask}
               addTimeEntry={handleAddTimeEntry}
+              projectSlug={project.slug}
             />
           ) : (
             <Empty className="py-12">
