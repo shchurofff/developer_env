@@ -30,6 +30,7 @@ interface TasksTableProps {
   onDelete: (id: string) => Promise<string | undefined>;
   onEdit: (task: Task) => void;
   addTimeEntry: (id: Task["id"]) => void;
+  projectSlug: string;
 }
 
 export const TasksTable: FC<TasksTableProps> = ({
@@ -37,6 +38,7 @@ export const TasksTable: FC<TasksTableProps> = ({
   onDelete,
   onEdit,
   addTimeEntry,
+  projectSlug,
 }) => {
   const [isPending, startTransition] = useTransition();
   const [pendingTaskId, setPendingTaskId] = useState<string | null>(null);
@@ -62,7 +64,10 @@ export const TasksTable: FC<TasksTableProps> = ({
       key: "name",
       header: "Название",
       render: (row) => (
-        <Link className="underline underline-offset-4" href={`tasks/${row.id}`}>
+        <Link
+          className="underline underline-offset-4"
+          href={`/projects/${projectSlug}/tasks/${row.id}`}
+        >
           {row.name}
         </Link>
       ),

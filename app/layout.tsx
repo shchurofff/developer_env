@@ -9,23 +9,16 @@ const jetbrains = JetBrains_Mono({
   variable: "--font-mono",
 });
 
-// const geistSans = Geist({
-//   variable: "--font-geist-sans",
-//   subsets: ["latin"],
-// });
-
-// const geistMono = Geist_Mono({
-//   variable: "--font-geist-mono",
-//   subsets: ["latin"],
-// });
-
 export const metadata: Metadata = {
   title: "Developer Environment",
   description:
-    "Площадка которая старается создать среду для облегчения и улучшения рутинных задач разработчика",
+    "Площадка, которая старается создать среду для облегчения и улучшения рутинных задач разработчика",
   icons: {
+    icon: [
+      { url: "/favicon/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon/favicon-96x96.png", sizes: "96x96", type: "image/png" },
+    ],
     shortcut: "/favicon/favicon.ico",
-    icon: "/favicon/favicon-96x96.png",
     apple: "/favicon/apple-touch-icon.png",
   },
 };
