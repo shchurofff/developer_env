@@ -49,7 +49,7 @@
 Клонируйте репозиторий и установите пакеты:
 
 ```bash
-git clone [https://github.com/shchurofff/developer_env.git](https://github.com/shchurofff/developer_env.git)
+git clone https://github.com/shchurofff/developer_env.git
 cd developer_env
 pnpm install
 ```
@@ -106,7 +106,7 @@ pnpm prisma db push
 pnpm dev
 ```
 
-### ⚡Интеграция с Zed IDE
+## ⚡Интеграция с Zed IDE
 
 Если вашим основным редактором является [Zed](https://zed.dev/), проект уже содержит преднастроенные задачи (tasks) для быстрого старта. Они лежат в файле `.zed/tasks.json`.
 
@@ -122,6 +122,8 @@ pnpm dev
    - **Production Server** — запускает собранный проект.
 
 Терминал автоматически скроется при успешном выполнении (например, при линтинге) или останется в доке, если это запущенный сервер.
+
+---
 
 ### 📁 Структура проекта
 
