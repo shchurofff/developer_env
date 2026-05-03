@@ -1,36 +1,138 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🚀 Developer Environment
 
-## Getting Started
+**Developer Environment** — это современное веб-приложение для разработчиков, созданное для удобного управления проектами, задачами, отслеживания затраченного времени (time tracking) и хранения полезных материалов.
 
-First, run the development server:
+Проект построен с фокусом на производительность, чистый UI и надежную типизацию. Поддерживает бесшовную аутентификацию и гостевой доступ.
+
+## ✨ Текущий функционал
+
+- **Управление проектами:** Создание, редактирование и удаление проектов.
+- **Трекинг задач (Task Management):** Управление списком задач внутри каждого проекта.
+- **Учет времени (Time Entries):** Возможность логировать затраченное время прямо из таблицы задач.
+- **Аутентификация:** Надежная система входа через Email/Password, Google и GitHub (на базе Better Auth), а также анонимные (гостевые) сессии для тестирования функционала.
+- **Темная/Светлая тема:** Полная поддержка системной темы с помощью `next-themes`.
+
+## 🚧 В планах (Roadmap)
+
+- [ ] **Детальная страница задачи:** Полноценный рабочий экран для описания, заметок и индивидуального учета времени по задаче.
+- [ ] **Хранилище данных (Repository):** Отдельный модуль для сохранения важных файлов, сниппетов и артефактов разработки.
+- [ ] **Быстрые ссылки (Quick Links):** Дашборд с кастомными закладками для быстрого доступа к важным ресурсам.
+
+## 🛠 Технологический стек
+
+- **Фреймворк:** [Next.js](https://nextjs.org/) (App Router, Server Actions)
+- **База данных:** PostgreSQL (via [Supabase](https://supabase.com/))
+- **ORM:** [Prisma](https://www.prisma.io/)
+- **Аутентификация:** [Better Auth](https://better-auth.com/)
+- **Файловое хранилище:** [Vercel Blob](https://vercel.com/docs/storage/vercel-blob)
+- **Стилизация:** [Tailwind CSS](https://tailwindcss.com/) v4
+- **UI Компоненты:** [Shadcn/ui](https://ui.shadcn.com/)
+- **Формы и Валидация:** [React Hook Form](https://react-hook-form.com/) + [Zod](https://zod.dev/)
+- **Инструменты кода:** ESLint, Prettier, TypeScript, Lefthook, TypeScript strict mode.
+
+---
+
+## 💻 Локальный запуск (Getting Started)
+
+Инструкция по развертыванию проекта на локальной машине.
+
+### 1. Требования
+
+Убедитесь, что у вас установлены:
+
+- Node.js (v20+)
+- [pnpm](https://pnpm.io/) (пакетный менеджер проекта)
+- PostgreSQL (локально или облачно, например, Supabase)
+
+### 2. Установка зависимостей
+
+Клонируйте репозиторий и установите пакеты:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone [https://github.com/shchurofff/developer_env.git](https://github.com/shchurofff/developer_env.git)
+cd developer_env
+pnpm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 3. Настройка переменных окружения
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Создайте файл `.env` в корне проекта, скопировав структуру из `.env.example`:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+cp .env.example .env
+```
 
-## Learn More
+Затем заполните .env вашими реальными ключами
 
-To learn more about Next.js, take a look at the following resources:
+### 4. 🔐 Конфигурация .env (Environment Variables)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Для корректной работы приложения вам понадобятся следующие сервисы:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- База данных (PostgreSQL / Supabase):
 
-## Deploy on Vercel
+  DATABASE_URL: Строка подключения к базе данных.
+  DIRECT_URL: Прямая строка подключения.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- Vercel Blob:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+  BLOB_READ_WRITE_TOKEN: Токен для загрузки и чтения файлов.
+
+- Better Auth:
+
+  BETTER_AUTH_SECRET: Случайная строка для шифрования сессий.
+  BETTER_AUTH_URL: Базовый URL приложения (для локалки: http://localhost:3000).
+
+- OAuth Провайдеры (Google & GitHub):
+
+  Получите CLIENT_ID и CLIENT_SECRET в соответствующих консолях разработчика (Google Cloud Console и GitHub Developer Settings).
+
+### 5. Инициализация Базы Данных
+
+Сгенерируйте клиент Prisma и примените миграции:
+
+```bash
+pnpm prisma generate
+pnpm prisma db push
+# или pnpm prisma migrate dev (если используете историю миграций)
+```
+
+### 6. Запуск
+
+Запустите сервер для разработки:
+
+```bash
+pnpm dev
+```
+
+### ⚡ Pro Tip: Интеграция с Zed IDE
+
+Если вашим основным редактором является [Zed](https://zed.dev/), проект уже содержит преднастроенные задачи (tasks) для быстрого старта. Они лежат в файле `.zed/tasks.json`.
+
+**Как использовать:**
+
+1. Откройте проект в Zed.
+2. Нажмите `Cmd + Shift + R` (на Mac) или `Ctrl + Shift + R` (на Windows/Linux), чтобы открыть меню задач.
+3. Либо откройте Command Palette (`Cmd/Ctrl + Shift + P`) и введите `task: spawn`.
+4. В появившемся списке выберите нужную команду:
+   - **Development Server** — запускает `pnpm dev` в фоновом терминале.
+   - **Build the application** — собирает проект.
+   - **Lint the project** — запускает проверку кода.
+   - **Production Server** — запускает собранный проект.
+
+Терминал автоматически скроется при успешном выполнении (например, при линтинге) или останется в доке, если это запущенный сервер.
+
+### 📁 Структура проекта
+
+Проект использует гибридную архитектуру, разделяя общие UI-элементы и бизнес-логику:
+
+[app/] — Роутинг Next.js (страницы, layout, API).
+
+[modules/] — Изолированные бизнес-модули (auth, projects, tasks, home).
+
+[components/ui/] — Переиспользуемые "глупые" UI-компоненты.
+
+[server/] — Серверные действия (Server Actions) и сервисы для работы с БД.
+
+[lib/] — Утилиты, хелперы и конфигурации.
+
+[prisma/] — Схема базы данных и миграции.
