@@ -71,6 +71,7 @@ cp .env.example .env
 - База данных (PostgreSQL / Supabase):
 
   DATABASE_URL: Строка подключения к базе данных.
+
   DIRECT_URL: Прямая строка подключения.
 
 - Vercel Blob:
@@ -80,6 +81,7 @@ cp .env.example .env
 - Better Auth:
 
   BETTER_AUTH_SECRET: Случайная строка для шифрования сессий.
+
   BETTER_AUTH_URL: Базовый URL приложения (для локалки: http://localhost:3000).
 
 - OAuth Провайдеры (Google & GitHub):
@@ -104,7 +106,7 @@ pnpm prisma db push
 pnpm dev
 ```
 
-### ⚡ Pro Tip: Интеграция с Zed IDE
+### ⚡Интеграция с Zed IDE
 
 Если вашим основным редактором является [Zed](https://zed.dev/), проект уже содержит преднастроенные задачи (tasks) для быстрого старта. Они лежат в файле `.zed/tasks.json`.
 
@@ -125,14 +127,12 @@ pnpm dev
 
 Проект использует гибридную архитектуру, разделяя общие UI-элементы и бизнес-логику:
 
-[app/] — Роутинг Next.js (страницы, layout, API).
-
-[modules/] — Изолированные бизнес-модули (auth, projects, tasks, home).
-
-[components/ui/] — Переиспользуемые "глупые" UI-компоненты.
-
-[server/] — Серверные действия (Server Actions) и сервисы для работы с БД.
-
-[lib/] — Утилиты, хелперы и конфигурации.
-
-[prisma/] — Схема базы данных и миграции.
+```bash
+app/                #  Роутинг Next.js (страницы, layout, API)
+modules/            # Изолированные бизнес-модули (auth, projects, tasks, home)
+components/
+  ui/               # Переиспользуемые "глупые" UI-компоненты
+server/             # Серверные действия (Server Actions) и сервисы для работы с БД
+lib/                # Утилиты, хелперы и конфигурации
+prisma/             # Схема базы данных и миграции
+```
