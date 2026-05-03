@@ -24,6 +24,7 @@ import {
 import {
   CalendarRange,
   FolderSearch,
+  LinkIcon,
   Plus,
   Search,
   TimerReset,
@@ -132,6 +133,31 @@ export const ProjectDetailsView = ({ project }: ProjectDetailsViewProps) => {
             </div>
           </div>
         </CardHeader>
+      </Card>
+
+      <Card className="bg-background/90 border">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle>
+              <Heading level="h2">Быстрые ссылки</Heading>
+            </CardTitle>
+            <Badge>В разработке</Badge>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <Empty>
+            <EmptyHeader>
+              <EmptyMedia variant="icon">
+                <LinkIcon />
+              </EmptyMedia>
+              <EmptyTitle>Функция быстрых ссылок скоро появится</EmptyTitle>
+              <EmptyDescription>
+                Скоро здесь можно будет добавлять ссылки на GitHub, Figma,
+                документацию и другие ресурсы проекта.
+              </EmptyDescription>
+            </EmptyHeader>
+          </Empty>
+        </CardContent>
       </Card>
 
       <Card className="bg-background/90 border">

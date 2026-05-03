@@ -36,8 +36,9 @@ const sections: HomeCardProps[] = [
   {
     icon: Loader,
     title: "Блок на этапе согласования",
-    description: "",
-    href: "/",
+    description:
+      "Если у вас есть идеи или предложения по поводу улучшения и дополнения функционала приложения можете написать мне на почту.",
+    href: "mailto:shchuroffff@yandex.ru",
   },
 ];
 
